@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arthvega — Fast Crypto Payments for Indian Freelancers</title>
+<meta name="description" content="Receive international USDT payments, invest in crypto, and withdraw to INR. Built for Indian freelancers. Powered by Polygon."/>
+<meta name="theme-color" content="#6C3DE8"/>
+<meta property="og:title" content="Arthvega — Fast Crypto Payments"/>
+<meta property="og:description" content="Receive USDT from clients worldwide. Withdraw to INR bank. Zero fees on Polygon."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://incredible-dasik-807529.netlify.app"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236C3DE8'/><text x='50' y='68' font-family='Arial Black,sans-serif' font-size='42' font-weight='900' text-anchor='middle' fill='white'>AV</text></svg>"/>
+<link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236C3DE8'/><text x='50' y='68' font-family='Arial Black,sans-serif' font-size='42' font-weight='900' text-anchor='middle' fill='white'>AV</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --p:#6C3DE8;--p2:#8B5CF6;--p3:#EDE9FE;--p4:#F5F3FF;
+  --ink:#1a1a2e;--ink2:#4a4a6a;--ink3:#9090b0;
+  --bg:#fff;--bg2:#f8f7ff;--border:#e8e4f8;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --red:#dc2626;--red-bg:#fee2e2;
+  --amber:#d97706;--amber-bg:#fef3c7;
+  --radius:14px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Poppins',sans-serif;background:var(--bg2);color:var(--ink);font-size:15px;min-height:100vh;}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:480px;margin:0 auto;background:var(--bg);box-shadow:0 0 40px rgba(108,61,232,0.10);position:relative;}
+.page,.auth-page{display:none;flex-direction:column;min-height:100vh;padding-bottom:80px;animation:fadeIn 0.22s ease;}
+.page.active,.auth-page.active{display:flex;}
+.auth-page{padding-bottom:20px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;background:var(--bg);position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);}
+.logo-wrap{display:flex;align-items:center;gap:8px;}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:var(--p);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;}
+.logo-text{font-weight:700;font-size:1.05rem;color:var(--ink);letter-spacing:-0.01em;}
+.logo-text span{color:var(--p);}
+.topbar-back{display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:0.9rem;color:var(--ink);background:none;border:none;font-family:'Poppins',sans-serif;}
+.topbar-action{width:34px;height:34px;border-radius:50%;background:var(--p4);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;font-size:15px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg);border-top:1px solid var(--border);display:flex;z-index:100;padding:5px 0 10px;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:5px 2px;border:none;background:none;color:var(--ink3);font-family:'Poppins',sans-serif;transition:color 0.15s;}
+.nav-item.active{color:var(--p);}
+.nav-item svg{width:20px;height:20px;}
+.nav-label{font-size:9px;font-weight:500;}
+.balance-card{margin:14px;border-radius:18px;background:linear-gradient(135deg,#6C3DE8,#8B5CF6,#a78bfa);padding:22px 20px;color:#fff;position:relative;overflow:hidden;}
+.balance-card::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.balance-card::after{content:'';position:absolute;bottom:-30px;left:-20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.bal-label{font-size:11px;font-weight:500;opacity:.85;letter-spacing:.05em;text-transform:uppercase;}
+.bal-amount{font-size:2.1rem;font-weight:700;margin:5px 0 2px;letter-spacing:-.02em;}
+.bal-usdt{font-size:12px;opacity:.8;}
+.bal-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;}
+.bal-wallet{font-size:11px;opacity:.7;cursor:pointer;}
+.bal-network{background:rgba(255,255,255,.2);padding:2px 10px;border-radius:100px;font-size:10px;font-weight:600;}
+.quick-actions{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:0 14px 14px;}
+.qa-btn{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 4px;border-radius:10px;background:var(--p4);border:1px solid var(--border);cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif;}
+.qa-btn:hover{background:var(--p3);transform:translateY(-1px);}
+.qa-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
+.qa-label{font-size:10px;font-weight:500;color:var(--ink2);}
+.rate-card{margin:0 14px 12px;border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;}
+.sec-head{display:flex;justify-content:space-between;align-items:center;padding:0 14px;margin-bottom:8px;}
+.sec-title{font-size:13px;font-weight:600;color:var(--ink);}
+.sec-link{font-size:11px;color:var(--p);font-weight:500;cursor:pointer;background:none;border:none;font-family:'Poppins',sans-serif;}
+.txn-list{margin:0 14px;}
+.txn-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:11px;background:var(--bg);border:1px solid var(--border);margin-bottom:5px;cursor:pointer;transition:background .1s;}
+.txn-row:hover{background:var(--p4);}
+.txn-icon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.txn-icon.send{background:var(--red-bg);}
+.txn-icon.recv{background:var(--green-bg);}
+.txn-icon.withdraw{background:var(--amber-bg);}
+.txn-icon.invest{background:#ede9fe;}
+.txn-info{flex:1;}
+.txn-name{font-size:12px;font-weight:600;color:var(--ink);}
+.txn-date{font-size:10px;color:var(--ink3);margin-top:1px;}
+.txn-amount{text-align:right;}
+.txn-usdt{font-size:12px;font-weight:600;}
+.txn-usdt.neg{color:var(--red);}
+.txn-usdt.pos{color:var(--green);}
+.txn-inr{font-size:10px;color:var(--ink3);margin-top:1px;}
+.status-chip{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:100px;}
+.status-chip.success{background:var(--green-bg);color:var(--green);}
+.status-chip.pending{background:var(--amber-bg);color:var(--amber);}
+.status-chip.failed{background:var(--red-bg);color:var(--red);}
+.form-wrap{padding:14px;}
+.form-label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:11px;padding:12px 15px;font-size:14px;font-family:'Poppins',sans-serif;color:var(--ink);background:var(--bg);outline:none;transition:border-color .15s;margin-bottom:14px;}
+.form-input:focus{border-color:var(--p);}
+.amt-wrap{position:relative;}
+.amt-suffix{position:absolute;right:13px;top:50%;transform:translateY(-60%);font-size:12px;font-weight:600;color:var(--p);background:var(--p4);padding:2px 9px;border-radius:7px;}
+.inr-preview{background:var(--p4);border-radius:9px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:var(--ink2);display:flex;justify-content:space-between;}
+.inr-preview span{font-weight:600;color:var(--p);}
+.btn{width:100%;border:none;padding:13px;border-radius:13px;font-size:14px;font-weight:600;font-family:'Poppins',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-primary{background:var(--p);color:#fff;}
+.btn-primary:hover{background:#5a2fd4;transform:translateY(-1px);}
+.btn-primary:disabled{background:var(--ink3);cursor:not-allowed;transform:none;}
+.btn-secondary{background:var(--p4);color:var(--p);border:1.5px solid var(--border);margin-top:8px;}
+.btn-secondary:hover{background:var(--p3);}
+.btn-red{background:var(--red-bg);color:var(--red);margin-top:8px;}
+.auth-wrap{display:flex;flex-direction:column;align-items:center;padding:36px 22px 22px;flex:1;}
+.auth-logo-icon{width:60px;height:60px;border-radius:16px;background:var(--p);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:24px;margin-bottom:10px;}
+.auth-logo-name{font-size:1.5rem;font-weight:800;color:var(--ink);letter-spacing:-.02em;}
+.auth-logo-name span{color:var(--p);}
+.auth-tagline{font-size:12px;color:var(--ink3);margin-top:3px;margin-bottom:24px;}
+.auth-card{background:var(--bg);border:1px solid var(--border);border-radius:18px;padding:22px 18px;width:100%;margin-bottom:14px;}
+.auth-tabs{display:flex;gap:6px;margin-bottom:18px;}
+.auth-tab{flex:1;padding:8px;border-radius:9px;font-size:12px;font-weight:600;border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;}
+.auth-tab.active{background:var(--p);color:#fff;border-color:var(--p);}
+.otp-row{display:flex;gap:8px;justify-content:center;margin-bottom:18px;}
+.otp-input{width:43px;height:50px;border:1.5px solid var(--border);border-radius:11px;font-size:19px;font-weight:700;text-align:center;font-family:'Poppins',sans-serif;color:var(--ink);outline:none;transition:border-color .15s;}
+.otp-input:focus{border-color:var(--p);}
+.otp-input.error{border-color:var(--red);}
+.divider-text{display:flex;align-items:center;gap:10px;margin:12px 0;font-size:11px;color:var(--ink3);}
+.divider-text::before,.divider-text::after{content:'';flex:1;height:1px;background:var(--border);}
+.social-btn{display:flex;align-items:center;gap:10px;padding:11px 15px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;width:100%;font-family:'Poppins',sans-serif;transition:all .15s;margin-bottom:8px;}
+.social-btn:hover{border-color:var(--p);background:var(--p4);}
+
+/* ===== CRYPTO INVEST PAGE ===== */
+.invest-header{margin:14px;border-radius:18px;padding:20px;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 60%,#312e81 100%);}
+.invest-header::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(139,92,246,0.25);}
+.invest-header::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(99,102,241,0.2);}
+.invest-header-content{position:relative;z-index:1;}
+.invest-header-title{font-size:13px;font-weight:600;opacity:.8;margin-bottom:4px;}
+.invest-portfolio-val{font-size:26px;font-weight:800;letter-spacing:-.02em;}
+.invest-portfolio-inr{font-size:12px;opacity:.7;margin-top:2px;}
+.invest-header-stats{display:flex;gap:16px;margin-top:14px;}
+.invest-stat{background:rgba(255,255,255,.08);border-radius:10px;padding:8px 12px;}
+.invest-stat-label{font-size:9px;opacity:.7;text-transform:uppercase;letter-spacing:.05em;}
+.invest-stat-val{font-size:14px;font-weight:700;margin-top:2px;}
+
+/* Crypto asset cards */
+.crypto-grid{display:flex;flex-direction:column;gap:8px;margin:0 14px 14px;}
+.crypto-card{border:1px solid var(--border);border-radius:14px;padding:14px 16px;background:var(--bg);cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.crypto-card:hover{border-color:var(--p2);background:var(--p4);transform:translateY(-1px);}
+.crypto-card-row{display:flex;align-items:center;gap:12px;}
+.crypto-logo{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.crypto-info{flex:1;}
+.crypto-name{font-size:13px;font-weight:700;color:var(--ink);}
+.crypto-symbol{font-size:11px;color:var(--ink3);margin-top:1px;}
+.crypto-price-col{text-align:right;}
+.crypto-price{font-size:14px;font-weight:700;color:var(--ink);}
+.crypto-change{font-size:11px;font-weight:600;margin-top:2px;}
+.crypto-change.pos{color:var(--green);}
+.crypto-change.neg{color:var(--red);}
+.crypto-bar{margin-top:10px;height:3px;border-radius:100px;background:var(--border);overflow:hidden;}
+.crypto-bar-fill{height:100%;border-radius:100px;transition:width .5s ease;}
+
+/* Mini chart sparkline area */
+.crypto-sparkline{display:flex;align-items:flex-end;gap:2px;height:28px;margin-top:8px;}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;min-height:3px;transition:height .3s;}
+
+/* Holdings row */
+.holding-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);}
+.holding-row:last-child{border-bottom:none;}
+.holding-logo{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.holding-info{flex:1;}
+.holding-name{font-size:12px;font-weight:600;color:var(--ink);}
+.holding-amt{font-size:10px;color:var(--ink3);margin-top:1px;}
+.holding-val{text-align:right;}
+.holding-inr{font-size:13px;font-weight:700;color:var(--ink);}
+.holding-pnl{font-size:10px;font-weight:600;margin-top:1px;}
+.holding-pnl.pos{color:var(--green);}
+.holding-pnl.neg{color:var(--red);}
+
+/* Market news */
+.news-card{border:1px solid var(--border);border-radius:12px;padding:13px 14px;margin:0 14px 8px;background:var(--bg);}
+.news-source{font-size:9px;font-weight:600;color:var(--p);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.news-title{font-size:12px;font-weight:600;color:var(--ink);line-height:1.4;}
+.news-time{font-size:10px;color:var(--ink3);margin-top:4px;}
+
+/* Buy/Sell modal */
+.buy-sell-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.bs-tab{flex:1;padding:9px;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);cursor:pointer;font-family:'Poppins',sans-serif;transition:all .15s;}
+.bs-tab.buy.active{background:var(--green);color:#fff;border-color:var(--green);}
+.bs-tab.sell.active{background:var(--red);color:#fff;border-color:var(--red);}
+
+/* Withdraw / Profile / Terms (same as before) */
+.fee-box{background:var(--p4);border-radius:11px;padding:13px 15px;margin:0 14px 14px;}
+.fee-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;}
+.fee-row.total{border-top:1px solid var(--border);margin-top:5px;padding-top:9px;font-weight:700;font-size:13px;}
+.profile-header{display:flex;align-items:center;gap:12px;padding:16px;background:var(--p4);border-radius:14px;border:1px solid var(--border);margin:14px;margin-bottom:12px;}
+.profile-avatar{width:50px;height:50px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;}
+.kyc-step{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:11px;background:var(--bg);border:1px solid var(--border);margin:0 14px 7px;}
+.kyc-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.kyc-num.done{background:var(--green-bg);color:var(--green);}
+.kyc-num.active{background:var(--p);color:#fff;}
+.kyc-num.pending{background:var(--border);color:var(--ink3);}
+.profile-item{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--bg);border:1px solid var(--border);border-radius:11px;margin:0 14px 6px;cursor:pointer;transition:background .1s;}
+.profile-item:hover{background:var(--p4);}
+.terms-content{padding:18px 14px;}
+.terms-h1{font-size:19px;font-weight:700;margin-bottom:3px;}
+.terms-updated{font-size:10px;color:var(--ink3);margin-bottom:18px;}
+.terms-section{margin-bottom:20px;}
+.terms-h2{font-size:13px;font-weight:700;color:var(--p);margin-bottom:7px;border-left:3px solid var(--p);padding-left:9px;}
+.terms-p{font-size:12px;color:var(--ink2);line-height:1.7;margin-bottom:7px;}
+.terms-li{font-size:12px;color:var(--ink2);line-height:1.7;padding-left:13px;position:relative;margin-bottom:3px;}
+.terms-li::before{content:'•';position:absolute;left:0;color:var(--p);}
+.modal-overlay{position:fixed;inset:0;background:rgba(26,26,46,.55);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg);border-radius:22px 22px 0 0;width:100%;max-width:480px;padding:22px 18px 32px;animation:slideUp .28s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:none;}}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px;}
+.modal-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:14px;}
+.success-icon{width:60px;height:60px;background:var(--green-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;}
+.warn-icon{width:60px;height:60px;background:var(--red-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;}
+.modal-detail-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.modal-detail-row:last-of-type{border-bottom:none;}
+.chip{display:inline-block;padding:2px 9px;border-radius:100px;font-size:10px;font-weight:600;}
+.chip-purple{background:var(--p3);color:var(--p);}
+.chip-green{background:var(--green-bg);color:var(--green);}
+.chip-amber{background:var(--amber-bg);color:var(--amber);}
+.chip-red{background:var(--red-bg);color:var(--red);}
+.testnet-banner{background:var(--amber-bg);border:1px solid #fcd34d;border-radius:9px;padding:9px 13px;margin:0 14px 12px;font-size:11px;color:#92400e;line-height:1.5;}
+.toast{position:fixed;top:18px;left:50%;transform:translateX(-50%) translateY(-70px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:100px;font-size:12px;font-weight:500;z-index:300;transition:transform .3s ease;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:5px;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.4;}}
+.filter-tabs{display:flex;gap:6px;padding:0 14px;margin-bottom:12px;overflow-x:auto;}
+.filter-tab{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;transition:all .15s;}
+.filter-tab.active{background:var(--p);color:#fff;border-color:var(--p);}
+.chatbot-fab{position:fixed;bottom:90px;right:16px;width:50px;height:50px;border-radius:50%;background:var(--p);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(108,61,232,.35);z-index:150;transition:transform .15s;}
+.chatbot-fab:hover{transform:scale(1.08);}
+.chatbot-window{position:fixed;bottom:90px;right:12px;width:320px;max-width:calc(100vw - 24px);background:var(--bg);border:1px solid var(--border);border-radius:18px;box-shadow:0 8px 32px rgba(108,61,232,.18);z-index:149;display:none;flex-direction:column;overflow:hidden;max-height:480px;}
+.chatbot-window.open{display:flex;}
+.chat-header{background:var(--p);color:#fff;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;}
+.chat-header-info{display:flex;align-items:center;gap:9px;}
+.chat-avatar{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.chat-name{font-size:13px;font-weight:700;}
+.chat-status{font-size:10px;opacity:.8;}
+.chat-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:0;}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:200px;}
+.chat-msg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.55;}
+.chat-msg.bot{background:var(--p4);color:var(--ink);border-bottom-left-radius:3px;align-self:flex-start;}
+.chat-msg.user{background:var(--p);color:#fff;border-bottom-right-radius:3px;align-self:flex-end;}
+.chat-msg.typing{background:var(--p4);color:var(--ink3);font-style:italic;}
+.chat-input-row{display:flex;gap:7px;padding:10px 12px;border-top:1px solid var(--border);}
+.chat-input{flex:1;border:1.5px solid var(--border);border-radius:100px;padding:8px 13px;font-size:12px;font-family:'Poppins',sans-serif;outline:none;background:var(--bg);color:var(--ink);}
+.chat-input:focus{border-color:var(--p);}
+.chat-send{width:32px;height:32px;border-radius:50%;background:var(--p);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 10px;}
+.chat-sug{font-size:10px;font-weight:500;padding:4px 10px;border-radius:100px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--p);font-family:'Poppins',sans-serif;}
+.chat-sug:hover{background:var(--p3);}
+/* ===== MOBILE & DESKTOP ===== */
+@media(min-width:481px){.app{border-radius:24px;margin:20px auto;min-height:calc(100vh - 40px);}.bottom-nav{border-radius:0 0 24px 24px;}.chatbot-fab{right:calc(50% - 224px);}.chatbot-window{right:calc(50% - 224px);}}
+@media(max-width:480px){.app{max-width:100%;box-shadow:none;}.bal-amount{font-size:1.8rem;}.qa-icon{width:30px;height:30px;font-size:14px;}.qa-label{font-size:9px;}}
+/* ===== CHART PAGE ===== */
+.chart-container{margin:14px;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.chart-price-big{font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-.02em;}
+.chart-change-big{font-size:13px;font-weight:600;margin-top:2px;}
+.chart-tabs{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.chart-tab{padding:5px 14px;border-radius:100px;font-size:11px;font-weight:600;border:1.5px solid var(--border);background:var(--bg);color:var(--ink2);cursor:pointer;font-family:'Poppins',sans-serif;white-space:nowrap;transition:all .15s;}
+.chart-tab.active{background:var(--p);color:#fff;border-color:var(--p);}
+.chart-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:0 14px 14px;}
+.chart-stat{background:var(--p4);border-radius:10px;padding:10px 12px;text-align:center;}
+.chart-stat-label{font-size:9px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;}
+.chart-stat-val{font-size:13px;font-weight:700;color:var(--ink);margin-top:3px;}
+/* ===== TXN DETAIL ===== */
+.txn-detail-icon{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;margin:20px auto 10px;}
+.txn-detail-amount{font-size:28px;font-weight:800;text-align:center;letter-spacing:-.02em;}
+.txn-detail-inr{font-size:13px;color:var(--ink3);text-align:center;margin-top:3px;}
+.txn-detail-card{margin:14px;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.txn-detail-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px solid var(--border);}
+.txn-detail-row:last-child{border-bottom:none;}
+.txn-detail-label{font-size:11px;color:var(--ink3);}
+.txn-detail-value{font-size:11px;font-weight:600;color:var(--ink);text-align:right;max-width:65%;word-break:break-all;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:livepulse 1.5s infinite;margin-right:5px;}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SPLASH -->
+<div class="auth-page active" id="page-splash">
+  <div class="auth-wrap">
+    <div class="auth-logo-icon">AV</div>
+    <div class="auth-logo-name">Arth<span>vega</span></div>
+    <div class="auth-tagline">Fast crypto payments for Indian freelancers</div>
+    <div style="width:100%;">
+      <button class="btn btn-primary" onclick="navigate('signup')" style="margin-bottom:10px;">Create Account</button>
+      <button class="btn btn-secondary" onclick="navigate('login')" style="margin-top:0;">Sign In</button>
+      <div class="divider-text" style="margin:16px 0 12px;">or continue with</div>
+      <button class="social-btn" onclick="connectMetaMask()">
+        <div style="font-size:22px;width:28px;">🦊</div>
+        <div style="font-size:13px;font-weight:600;color:var(--ink);">Connect MetaMask</div>
+        <span style="color:var(--ink3);margin-left:auto;">›</span>
+      </button>
+    </div>
+    <div style="font-size:10px;color:var(--ink3);text-align:center;margin-top:12px;line-height:1.6;">By continuing you agree to our <span style="color:var(--p);cursor:pointer;" onclick="navigate('terms-auth')">Terms & Conditions</span></div>
+  </div>
+</div>
+
+<!-- SIGNUP -->
+<div class="auth-page" id="page-signup">
+  <div class="auth-wrap">
+    <div class="auth-logo-icon" style="width:44px;height:44px;font-size:18px;border-radius:12px;">AV</div>
+    <div class="auth-logo-name" style="font-size:1.2rem;margin-bottom:20px;">Create Account</div>
+    <div class="auth-card">
+      <div class="form-label">Full Name</div>
+      <input class="form-input" id="signup-name-email" placeholder="Enter your full name" type="text"/>
+      <div class="form-label">Email Address</div>
+      <input class="form-input" id="signup-email" placeholder="you@example.com" type="email"/>
+      <div class="form-label">Password</div>
+      <input class="form-input" id="signup-password" placeholder="Min 8 characters" type="password"/>
+      <button class="btn btn-primary" onclick="signupEmail()">Create Account →</button>
+      <button class="btn btn-secondary" onclick="navigate('splash')">← Back</button>
+    </div>
+    <div style="font-size:11px;color:var(--ink3);">Already have an account? <span style="color:var(--p);cursor:pointer;font-weight:600;" onclick="navigate('login')">Sign In</span></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="auth-page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-logo-icon" style="width:44px;height:44px;font-size:18px;border-radius:12px;">AV</div>
+    <div class="auth-logo-name" style="font-size:1.2rem;margin-bottom:20px;">Welcome Back</div>
+    <div class="auth-card">
+      <div class="form-label">Email Address</div>
+      <input class="form-input" id="login-email" placeholder="you@example.com" type="email"/>
+      <div class="form-label">Password</div>
+      <input class="form-input" id="login-password" placeholder="Your password" type="password" onkeydown="if(event.key==='Enter')loginEmail()"/>
+      <button class="btn btn-primary" onclick="loginEmail()">Sign In →</button>
+      <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--p);cursor:pointer;" onclick="forgotPassword()">Forgot Password?</div>
+      <button class="btn btn-secondary" onclick="navigate('splash')">← Back</button>
+    </div>
+    <div style="font-size:11px;color:var(--ink3);">New to Arthvega? <span style="color:var(--p);cursor:pointer;font-weight:600;" onclick="navigate('signup')">Create Account</span></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="topbar">
+    <div class="logo-wrap"><div class="logo-icon">AV</div><div class="logo-text">Arth<span>vega</span></div></div>
+    <div style="display:flex;gap:7px;align-items:center;">
+      <div id="wallet-badge" style="font-size:9px;font-weight:600;padding:3px 9px;border-radius:100px;background:var(--amber-bg);color:var(--amber);display:none;"></div>
+      <button class="topbar-action" onclick="openChat()">🤖</button>
+      <button class="topbar-action" onclick="navigate('profile')">👤</button>
+    </div>
+  </div>
+  <div class="balance-card">
+    <div class="bal-label">Total Balance</div>
+    <div class="bal-amount" id="dash-balance">₹0.00</div>
+    <div class="bal-usdt" id="dash-usdt">0.0000 USDT</div>
+    <div class="bal-row">
+      <div class="bal-wallet" id="dash-wallet" onclick="copyWallet()">Connect wallet</div>
+      <div class="bal-network"><span class="status-dot"></span>Polygon</div>
+    </div>
+  </div>
+  <div class="quick-actions">
+    <button class="qa-btn" onclick="navigate('send')"><div class="qa-icon" style="background:var(--p);">↑</div><span class="qa-label">Send</span></button>
+    <button class="qa-btn" onclick="navigate('receive')"><div class="qa-icon" style="background:var(--green);">↓</div><span class="qa-label">Receive</span></button>
+    <button class="qa-btn" onclick="navigate('withdraw')"><div class="qa-icon" style="background:#d97706;">🏦</div><span class="qa-label">Withdraw</span></button>
+    <button class="qa-btn" onclick="navigate('invest')"><div class="qa-icon" style="background:#7c3aed;">📈</div><span class="qa-label">Invest</span></button>
+    <button class="qa-btn" onclick="openChat()"><div class="qa-icon" style="background:#0891b2;">🤖</div><span class="qa-label">AI Help</span></button>
+  </div>
+  <div class="rate-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:10px;color:var(--ink3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;">Live Rate · CoinGecko</div>
+        <div style="font-size:18px;font-weight:700;color:var(--ink);margin-top:2px;" id="live-rate">1 USDT = ₹—</div>
+        <div style="font-size:10px;margin-top:2px;" id="rate-change">Loading...</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="chip chip-purple">Polygon</div>
+        <div style="font-size:10px;color:var(--ink3);margin-top:5px;" id="rate-updated">Fetching...</div>
+        <button style="font-size:10px;color:var(--p);background:none;border:none;cursor:pointer;margin-top:3px;font-family:'Poppins',sans-serif;font-weight:500;" onclick="fetchAllRates()">↻ Refresh</button>
+      </div>
+    </div>
+  </div>
+  <div class="testnet-banner">🧪 <strong>Mumbai Testnet</strong> — Real Polygon transactions. Investor demo mode.</div>
+  <div class="sec-head"><div class="sec-title">Recent Transactions</div><button class="sec-link" onclick="navigate('history')">See all</button></div>
+  <div class="txn-list" id="dash-txns"></div>
+</div>
+
+<!-- SEND -->
+<div class="page" id="page-send">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('dashboard')">← Send USDT</button><div class="chip chip-purple">Polygon</div></div>
+  <div class="form-wrap">
+    <div id="send-connect-prompt" style="background:var(--amber-bg);border-radius:12px;padding:13px;margin-bottom:14px;display:none;">
+      <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:7px;">⚠️ Connect wallet to send</div>
+      <button class="btn btn-primary" style="padding:9px;" onclick="connectMetaMask()">🦊 Connect MetaMask</button>
+    </div>
+    <div style="background:var(--p4);border-radius:12px;padding:13px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:10px;color:var(--ink3);">Wallet Balance</div><div style="font-size:17px;font-weight:700;" id="send-balance">—</div></div>
+      <div style="font-size:12px;color:var(--ink2);" id="send-bal-inr"></div>
+    </div>
+    <div class="form-label">Recipient Address</div>
+    <input class="form-input" id="send-address" placeholder="0x... Polygon address" type="text" oninput="checkAddressWarning()"/>
+    <div id="address-warning" style="display:none;background:var(--red-bg);border-radius:10px;padding:11px 13px;margin-bottom:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:4px;">⚠️ Web3 Irreversibility Warning</div>
+      <div style="font-size:11px;color:#7f1d1d;line-height:1.6;">Crypto transactions on Polygon <strong>cannot be reversed</strong>. If you send to the wrong address, <strong>funds are permanently lost</strong>. No recovery possible.</div>
+    </div>
+    <div class="form-label">Amount (USDT)</div>
+    <div class="amt-wrap"><input class="form-input" id="send-amount" placeholder="0.00" type="number" min="0.01" step="0.01" oninput="updateSendPreview()"/><span class="amt-suffix">USDT</span></div>
+    <div class="inr-preview"><span>You send</span><span id="send-inr-preview">≈ ₹0.00</span></div>
+    <div class="form-label">Note (Optional)</div>
+    <input class="form-input" id="send-note" placeholder="e.g. Invoice #001"/>
+    <div style="background:var(--red-bg);border-radius:9px;padding:9px 13px;margin-bottom:16px;font-size:11px;color:#7f1d1d;line-height:1.5;">🔴 <strong>IMPORTANT:</strong> Blockchain transactions are <strong>100% irreversible</strong>. Verify the address before sending.</div>
+    <button class="btn btn-primary" id="send-btn" onclick="confirmSend()">➤ Review & Send</button>
+    <button class="btn btn-secondary" onclick="navigate('dashboard')">Cancel</button>
+  </div>
+</div>
+
+<!-- RECEIVE -->
+<div class="page" id="page-receive">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('dashboard')">← Receive USDT</button></div>
+  <div style="display:flex;flex-direction:column;align-items:center;padding:18px 14px;">
+    <div style="text-align:center;margin-bottom:14px;"><div style="font-size:13px;font-weight:600;">Your Wallet</div><div style="font-size:11px;color:var(--ink3);margin-top:3px;">USDT on Polygon</div></div>
+    <div style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <svg width="170" height="170" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+        <rect width="180" height="180" fill="white"/>
+        <rect x="10" y="10" width="50" height="50" fill="none" stroke="#6C3DE8" stroke-width="4" rx="4"/><rect x="18" y="18" width="34" height="34" fill="#6C3DE8" rx="2"/>
+        <rect x="120" y="10" width="50" height="50" fill="none" stroke="#6C3DE8" stroke-width="4" rx="4"/><rect x="128" y="18" width="34" height="34" fill="#6C3DE8" rx="2"/>
+        <rect x="10" y="120" width="50" height="50" fill="none" stroke="#6C3DE8" stroke-width="4" rx="4"/><rect x="18" y="128" width="34" height="34" fill="#6C3DE8" rx="2"/>
+        <rect x="70" y="10" width="8" height="8" fill="#6C3DE8"/><rect x="82" y="10" width="8" height="8" fill="#6C3DE8"/><rect x="94" y="10" width="8" height="8" fill="#6C3DE8"/><rect x="106" y="10" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="70" y="22" width="8" height="8" fill="#6C3DE8"/><rect x="94" y="22" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="10" y="70" width="8" height="8" fill="#6C3DE8"/><rect x="22" y="70" width="8" height="8" fill="#6C3DE8"/><rect x="58" y="70" width="8" height="8" fill="#6C3DE8"/><rect x="82" y="70" width="8" height="8" fill="#6C3DE8"/><rect x="106" y="70" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="10" y="82" width="8" height="8" fill="#6C3DE8"/><rect x="58" y="82" width="8" height="8" fill="#6C3DE8"/><rect x="70" y="82" width="8" height="8" fill="#6C3DE8"/><rect x="94" y="82" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="10" y="94" width="8" height="8" fill="#6C3DE8"/><rect x="22" y="94" width="8" height="8" fill="#6C3DE8"/><rect x="70" y="94" width="8" height="8" fill="#6C3DE8"/><rect x="82" y="94" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="70" y="118" width="8" height="8" fill="#6C3DE8"/><rect x="94" y="118" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="70" y="130" width="8" height="8" fill="#6C3DE8"/><rect x="82" y="130" width="8" height="8" fill="#6C3DE8"/><rect x="106" y="130" width="8" height="8" fill="#6C3DE8"/>
+        <rect x="76" y="76" width="28" height="28" fill="white" rx="4"/><rect x="78" y="78" width="24" height="24" fill="#6C3DE8" rx="3"/>
+        <text x="90" y="94" text-anchor="middle" fill="white" font-size="10" font-weight="800" font-family="Poppins,sans-serif">AV</text>
+      </svg>
+    </div>
+    <div style="background:var(--p4);border:1px solid var(--border);border-radius:11px;padding:11px 14px;width:100%;text-align:center;margin-bottom:10px;">
+      <div style="font-size:9px;font-weight:600;color:var(--ink3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em;">Wallet Address · Polygon</div>
+      <div id="receive-addr" style="font-size:11px;color:var(--ink);font-weight:500;word-break:break-all;">Connect wallet to see address</div>
+    </div>
+    <button style="background:var(--p);color:#fff;border:none;padding:10px 26px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;" onclick="copyAddress()">📋 Copy Address</button>
+    <div style="margin-top:14px;background:var(--p4);border-radius:11px;padding:12px 14px;width:100%;font-size:11px;color:var(--ink2);line-height:1.6;">⚠️ Only send <strong>USDT on Polygon</strong>. Wrong network = permanent loss.</div>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('dashboard')">← Transaction History</button></div>
+  <div style="padding:12px 0 0;">
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterTxns('all',this)">All</button>
+      <button class="filter-tab" onclick="filterTxns('send',this)">Sent</button>
+      <button class="filter-tab" onclick="filterTxns('recv',this)">Received</button>
+      <button class="filter-tab" onclick="filterTxns('withdraw',this)">Withdrawals</button>
+      <button class="filter-tab" onclick="filterTxns('invest',this)">Crypto Buys</button>
+    </div>
+  </div>
+  <div class="txn-list" id="history-txns"></div>
+</div>
+
+<!-- WITHDRAW -->
+<div class="page" id="page-withdraw">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('dashboard')">← Withdraw to INR</button></div>
+  <div class="form-wrap" style="padding-top:10px;">
+    <div style="background:var(--p4);border:1px solid var(--border);border-radius:12px;padding:13px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--p);margin-bottom:5px;">🔗 Powered by CoinDCX</div>
+      <div style="font-size:11px;color:var(--ink2);line-height:1.5;">Withdrawals via CoinDCX Exchange API. KYC required. Settlement in 1–2 business days.</div>
+    </div>
+    <div style="background:var(--p4);border-radius:11px;padding:12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-size:10px;color:var(--ink3);">USDT Balance</div><div style="font-size:18px;font-weight:700;" id="wd-balance">—</div></div>
+      <div style="text-align:right;"><div style="font-size:10px;color:var(--ink3);" id="wd-rate">—</div><div style="font-size:13px;font-weight:600;color:var(--p);" id="wd-inr-val"></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;">
+      <div style="background:var(--p4);border:1px solid var(--border);border-radius:11px;padding:12px;"><div style="font-size:10px;color:var(--ink3);">Min</div><div style="font-size:15px;font-weight:700;">10 USDT</div><div style="font-size:9px;color:var(--ink3);" id="wd-min"></div></div>
+      <div style="background:var(--p4);border:1px solid var(--border);border-radius:11px;padding:12px;"><div style="font-size:10px;color:var(--ink3);">Daily Limit</div><div style="font-size:15px;font-weight:700;">1,000 USDT</div></div>
+    </div>
+    <div class="form-label">Amount (USDT)</div>
+    <div class="amt-wrap"><input class="form-input" id="withdraw-amount" placeholder="Min. 10 USDT" type="number" min="10" oninput="updateWithdrawPreview()"/><span class="amt-suffix">USDT</span></div>
+    <div class="form-label">Withdrawal Method</div>
+    <select class="form-input" id="withdraw-method" onchange="toggleWithdrawMethod()">
+      <option value="">Select method</option>
+      <option value="bank">Bank Transfer (CoinDCX)</option>
+      <option value="upi">UPI (CoinDCX)</option>
+    </select>
+    <div id="bank-fields" style="display:none;"><div class="form-label">Bank Account</div><select class="form-input" id="withdraw-bank"><option value="">Select linked bank</option><option value="sbi">SBI — ****4521</option><option value="hdfc">HDFC — ****8832</option></select></div>
+    <div id="upi-fields" style="display:none;"><div class="form-label">UPI ID</div><input class="form-input" id="withdraw-upi" placeholder="yourname@upi" type="text"/></div>
+    <div class="fee-box" id="fee-breakdown" style="display:none;">
+      <div style="font-size:11px;font-weight:600;color:var(--ink);margin-bottom:7px;">Fee Breakdown</div>
+      <div class="fee-row"><span style="color:var(--ink2);">USDT</span><span id="fee-usdt"></span></div>
+      <div class="fee-row"><span style="color:var(--ink2);">Rate (live)</span><span id="fee-rate"></span></div>
+      <div class="fee-row"><span style="color:var(--ink2);">Gross INR</span><span id="fee-gross"></span></div>
+      <div class="fee-row"><span style="color:var(--ink2);">GST 18%</span><span id="fee-gst"></span></div>
+      <div class="fee-row"><span style="color:var(--ink2);">TDS 1%</span><span id="fee-tds"></span></div>
+      <div class="fee-row total"><span>You Receive</span><span id="fee-final" style="color:var(--green);"></span></div>
+    </div>
+    <button class="btn btn-primary" onclick="processWithdraw()">🏦 Withdraw to Bank</button>
+    <div style="font-size:10px;color:var(--ink3);text-align:center;margin-top:8px;">Rates via CoinGecko · GST+TDS per Indian law</div>
+  </div>
+</div>
+
+<!-- ===== CRYPTO INVEST PAGE ===== -->
+<div class="page" id="page-invest">
+  <div class="topbar">
+    <button class="topbar-back" onclick="navigate('dashboard')">← Crypto Market</button>
+    <button class="topbar-action" onclick="fetchAllRates()" title="Refresh">↻</button>
+  </div>
+  <!-- Live ticker -->
+  <div style="background:var(--ink);padding:8px 0;overflow:hidden;white-space:nowrap;">
+    <div id="ticker-bar" style="display:inline-block;animation:ticker 30s linear infinite;font-size:11px;font-weight:500;padding:0 14px;">
+      <span style="color:#6b6963;font-size:10px;letter-spacing:.05em;">LIVE PRICES &nbsp;·&nbsp;</span>
+    </div>
+  </div>
+  <style>
+    @keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+  </style>
+
+  <!-- Portfolio Header -->
+  <div class="invest-header">
+    <div class="invest-header-content">
+      <div class="invest-header-title">My Crypto Portfolio</div>
+      <div class="invest-portfolio-val" id="portfolio-val">₹0.00</div>
+      <div class="invest-portfolio-inr" id="portfolio-usdt">0.00 USDT invested</div>
+      <div class="invest-header-stats">
+        <div class="invest-stat">
+          <div class="invest-stat-label">24h P&amp;L</div>
+          <div class="invest-stat-val" id="portfolio-pnl" style="color:#a78bfa;">+₹0</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-label">Assets</div>
+          <div class="invest-stat-val" id="portfolio-assets">0</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-label">Best Pick</div>
+          <div class="invest-stat-val" id="portfolio-best">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Holdings -->
+  <div id="holdings-section" style="display:none;">
+    <div class="sec-head"><div class="sec-title">My Holdings</div><button class="sec-link" onclick="navigate('history')">History</button></div>
+    <div style="margin:0 14px 14px;border:1px solid var(--border);border-radius:13px;overflow:hidden;" id="holdings-list"></div>
+  </div>
+
+  <!-- Market -->
+  <div class="sec-head" style="margin-top:4px;"><div class="sec-title">Live Market</div><div style="font-size:10px;color:var(--ink3);" id="market-updated">Updating...</div></div>
+  <div class="crypto-grid" id="crypto-grid">
+    <!-- Populated by JS -->
+    <div style="padding:30px;text-align:center;font-size:12px;color:var(--ink3);">Fetching live prices...</div>
+  </div>
+
+  <!-- Market News -->
+  <div class="sec-head" style="margin-top:4px;"><div class="sec-title">Market Insights</div></div>
+  <div class="news-card"><div class="news-source">Bitcoin</div><div class="news-title">BTC consolidating near key support as Indian crypto adoption surges 40% YoY</div><div class="news-time">2 hours ago · CoinDesk</div></div>
+  <div class="news-card"><div class="news-source">Polygon</div><div class="news-title">MATIC ecosystem hits 3M daily transactions, DeFi TVL grows to $1.2B</div><div class="news-time">4 hours ago · The Block</div></div>
+  <div class="news-card" style="margin-bottom:14px;"><div class="news-source">Ethereum</div><div class="news-title">ETH staking rewards increase as validator queue shrinks post-Dencun upgrade</div><div class="news-time">6 hours ago · Decrypt</div></div>
+
+  <div style="margin:0 14px 14px;background:var(--amber-bg);border-radius:11px;padding:12px 13px;font-size:11px;color:#92400e;line-height:1.5;">
+    ⚠️ <strong>Risk Disclaimer:</strong> Crypto is highly volatile. Past performance ≠ future results. Only invest what you can afford to lose. Not financial advice.
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="page-profile">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('dashboard')">← Profile & KYC</button></div>
+  <div class="profile-header">
+    <div class="profile-avatar" id="profile-avatar">?</div>
+    <div>
+      <div style="font-size:15px;font-weight:700;" id="profile-name">—</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px;" id="profile-contact">—</div>
+      <div style="margin-top:5px;"><span class="chip chip-amber">KYC Pending</span></div>
+    </div>
+  </div>
+  <div style="padding:0 14px;"><div class="sec-title" style="margin-bottom:9px;">KYC Verification</div></div>
+  <div class="kyc-step"><div class="kyc-num done">✓</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Identity Verified</div><div style="font-size:10px;color:var(--ink3);" id="kyc-identity">Logged in</div></div><span class="status-chip success">Done</span></div>
+  <div class="kyc-step"><div class="kyc-num" id="kyc-wallet-num" style="background:var(--amber-bg);color:var(--amber);">2</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Wallet Connected</div><div style="font-size:10px;color:var(--ink3);" id="kyc-wallet-val">Not connected</div></div><span class="status-chip" id="kyc-wallet-chip" style="background:var(--amber-bg);color:var(--amber);">Pending</span></div>
+  <div class="kyc-step"><div class="kyc-num active">3</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">PAN Card</div><div style="font-size:10px;color:var(--ink3);">For INR withdrawal</div></div><button style="font-size:11px;font-weight:600;color:var(--p);background:none;border:none;cursor:pointer;font-family:'Poppins',sans-serif;" onclick="showToast('PAN upload — KYC backend needed')">Upload →</button></div>
+  <div class="kyc-step"><div class="kyc-num pending">4</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Aadhaar Proof</div><div style="font-size:10px;color:var(--ink3);">Unlock higher limits</div></div><span class="status-chip pending">Pending</span></div>
+  <div class="kyc-step"><div class="kyc-num pending">5</div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">Bank via CoinDCX</div><div style="font-size:10px;color:var(--ink3);">For INR withdrawal</div></div><button style="font-size:11px;font-weight:600;color:var(--p);background:none;border:none;cursor:pointer;font-family:'Poppins',sans-serif;" onclick="showToast('Link CoinDCX account')">Link →</button></div>
+  <div style="padding:10px 14px 0;"><div class="sec-title" style="margin-bottom:9px;">Settings</div></div>
+  <div class="profile-item" onclick="connectMetaMask()"><span style="font-size:18px;width:30px;text-align:center;">🦊</span><span style="flex:1;font-size:12px;font-weight:500;" id="metamask-item">Connect MetaMask</span><span style="color:var(--ink3);">›</span></div>
+  <div class="profile-item" onclick="navigate('about')"><span style="font-size:18px;width:30px;text-align:center;">🏢</span><span style="flex:1;font-size:12px;font-weight:500;">About Arthvega</span><span style="color:var(--ink3);">›</span></div>
+  <div class="profile-item" onclick="navigate('terms')"><span style="font-size:18px;width:30px;text-align:center;">📄</span><span style="flex:1;font-size:12px;font-weight:500;">Terms & Conditions</span><span style="color:var(--ink3);">›</span></div>
+  <div class="profile-item" onclick="openChat()"><span style="font-size:18px;width:30px;text-align:center;">🤖</span><span style="flex:1;font-size:12px;font-weight:500;">AI Assistant (Vega)</span><span style="color:var(--ink3);">›</span></div>
+  <div class="profile-item" onclick="logout()"><span style="font-size:18px;width:30px;text-align:center;">🚪</span><span style="flex:1;font-size:12px;font-weight:500;color:var(--red);">Log Out</span><span style="color:var(--ink3);">›</span></div>
+</div>
+
+<!-- TERMS -->
+<div class="page" id="page-terms">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('profile')">← Terms & Conditions</button></div>
+  <div class="terms-content">
+    <div class="terms-h1">Terms & Conditions</div>
+    <div class="terms-updated">Effective March 17, 2026 · Arthvega Technologies Pvt. Ltd.</div>
+    <div class="terms-section"><div class="terms-h2">1. Acceptance</div><div class="terms-p">Using Arthvega constitutes acceptance. Legally binding under Indian law.</div></div>
+    <div class="terms-section"><div class="terms-h2">2. Service</div><div class="terms-p">Arthvega enables USDT receipt on Polygon, crypto investment, and INR withdrawal via CoinDCX. Not an RBI-regulated bank.</div></div>
+    <div class="terms-section"><div class="terms-h2">3. Eligibility</div><div class="terms-li">18+ Indian resident</div><div class="terms-li">KYC for INR withdrawals</div><div class="terms-li">Not on sanctions lists</div></div>
+    <div class="terms-section"><div class="terms-h2">4. Web3 Irreversibility</div><div class="terms-p" style="color:var(--red);font-weight:600;">⚠️ All blockchain transactions are permanent and irreversible. Funds sent to wrong addresses cannot be recovered by Arthvega or any party. You bear full responsibility.</div></div>
+    <div class="terms-section"><div class="terms-h2">5. Crypto Investment Risk</div><div class="terms-p">Cryptocurrency values are highly volatile. Arthvega does not guarantee returns. You may lose your entire invested amount. This is not financial advice. Past performance does not indicate future results.</div></div>
+    <div class="terms-section"><div class="terms-h2">6. Fees & Taxes</div><div class="terms-li">GST 18% on platform fees</div><div class="terms-li">TDS 1% per Section 194S Income Tax Act</div><div class="terms-li">Gas: ~0.001 MATIC per transaction</div></div>
+    <div class="terms-section"><div class="terms-h2">7. Governing Law</div><div class="terms-p">Indian law. Hyderabad, Telangana jurisdiction.</div></div>
+    <div style="background:var(--p4);border-radius:11px;padding:13px;text-align:center;"><div style="font-size:11px;color:var(--ink2);margin-bottom:10px;">By using Arthvega you confirm you have read and agreed to these Terms.</div><button class="btn btn-primary" style="width:auto;padding:9px 22px;" onclick="navigate('profile')">I Agree ✓</button></div>
+  </div>
+</div>
+
+<!-- ABOUT US -->
+<div class="page" id="page-about">
+  <div class="topbar"><button class="topbar-back" onclick="navigate('profile')">← About Arthvega</button></div>
+  <div style="padding:0 0 20px;">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(135deg,#6C3DE8,#8B5CF6,#a78bfa);margin:14px;border-radius:18px;padding:26px 22px;color:#fff;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.07);"></div>
+      <div style="position:relative;z-index:1;">
+        <div style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin-bottom:12px;">AV</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.02em;">Arthvega</div>
+        <div style="font-size:12px;opacity:0.8;margin-top:3px;">Artha (Wealth) + Vega (Speed)</div>
+        <div style="margin-top:14px;font-size:12px;line-height:1.7;opacity:0.9;">Empowering Indian freelancers to receive international crypto payments and convert to INR — instantly, cheaply, and without banks.</div>
+      </div>
+    </div>
+
+    <!-- Mission -->
+    <div style="margin:0 14px 12px;border:1px solid var(--border);border-radius:14px;padding:16px 18px;">
+      <div style="font-size:13px;font-weight:700;color:var(--p);margin-bottom:8px;">🎯 Our Mission</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.75;">India has 15 million+ freelancers losing 5–8% on every international payment through traditional remittance channels. Arthvega cuts that to near zero using Polygon blockchain — giving freelancers more of what they earn.</div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:0 14px 12px;">
+      <div style="background:var(--p4);border:1px solid var(--border);border-radius:12px;padding:13px 10px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--p);">15M+</div>
+        <div style="font-size:9px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Indian Freelancers</div>
+      </div>
+      <div style="background:var(--p4);border:1px solid var(--border);border-radius:12px;padding:13px 10px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--p);">~0%</div>
+        <div style="font-size:9px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Gas on Polygon</div>
+      </div>
+      <div style="background:var(--p4);border:1px solid var(--border);border-radius:12px;padding:13px 10px;text-align:center;">
+        <div style="font-size:20px;font-weight:800;color:var(--p);">2s</div>
+        <div style="font-size:9px;color:var(--ink3);margin-top:3px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;">Settlement</div>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div style="margin:0 14px 12px;border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      <div style="padding:13px 16px;background:var(--p4);border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--ink);">⚡ How Arthvega Works</div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--ink);">Client sends USDT</div><div style="font-size:11px;color:var(--ink3);margin-top:2px;">International client sends USDT to your Arthvega wallet on Polygon network</div></div>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">2</div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--ink);">Instant receipt</div><div style="font-size:11px;color:var(--ink3);margin-top:2px;">Funds confirmed in ~2 seconds. Gas fee under ₹1. Track live in your dashboard.</div></div>
+      </div>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">3</div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--ink);">Invest or Hold</div><div style="font-size:11px;color:var(--ink3);margin-top:2px;">Buy BTC, ETH, MATIC or hold USDT. Track your crypto portfolio in real time.</div></div>
+      </div>
+      <div style="padding:12px 16px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">4</div>
+        <div><div style="font-size:12px;font-weight:600;color:var(--ink);">Withdraw to INR</div><div style="font-size:11px;color:var(--ink3);margin-top:2px;">Convert USDT → INR via CoinDCX API. Credited to your bank in 1–2 days.</div></div>
+      </div>
+    </div>
+
+    <!-- Team -->
+    <div style="margin:0 14px 12px;border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      <div style="padding:13px 16px;background:var(--p4);border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--ink);">👥 Our Team</div>
+      <!-- Founder -->
+      <div style="padding:16px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:10px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#6C3DE8,#a78bfa);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0;">J</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);">B. Jayanth Reddy</div>
+            <div style="font-size:11px;color:var(--p);font-weight:600;margin-top:1px;">Founder & CEO</div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:2px;">J.N. Govt Polytechnic · Hyderabad</div>
+          </div>
+          <div style="margin-left:auto;"><span style="background:var(--p3);color:var(--p);font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;">Age 17</span></div>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink2);line-height:1.7;background:var(--p4);border-radius:10px;padding:11px 13px;">
+          Building Arthvega from his college hostel in Hyderabad. Jayanth identified the pain of Indian freelancers losing money on international payments and started building the solution at 17 — combining Web3, DeFi, and Indian banking infrastructure into one seamless product.
+        </div>
+        <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">Web3</span>
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">UI Design</span>
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">Product</span>
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">Sales</span>
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">Video Editing</span>
+          <span style="background:var(--p4);color:var(--p);font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid var(--border);">Figma</span>
+        </div>
+      </div>
+      <!-- Co-founder / Manager -->
+      <div style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:10px;">
+          <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#0f766e,#14b8a6);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:18px;flex-shrink:0;">R</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);">Ranadeep</div>
+            <div style="font-size:11px;color:#0f766e;font-weight:600;margin-top:1px;">Co-Founder & Manager</div>
+            <div style="font-size:10px;color:var(--ink3);margin-top:2px;">Hyderabad, India</div>
+          </div>
+        </div>
+        <div style="font-size:11.5px;color:var(--ink2);line-height:1.7;background:#f0fdf4;border-radius:10px;padding:11px 13px;border:1px solid #bbf7d0;">
+          Ranadeep brings operational and strategic strength to Arthvega, managing the team, partnerships, and go-to-market execution. Together with Jayanth, they're building the fastest path for Indian freelancers to get paid globally.
+        </div>
+        <div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">
+          <span style="background:#f0fdf4;color:#166534;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid #bbf7d0;">Strategy</span>
+          <span style="background:#f0fdf4;color:#166534;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid #bbf7d0;">Operations</span>
+          <span style="background:#f0fdf4;color:#166534;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid #bbf7d0;">Growth</span>
+          <span style="background:#f0fdf4;color:#166534;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid #bbf7d0;">Partnerships</span>
+          <span style="background:#f0fdf4;color:#166534;font-size:10px;font-weight:600;padding:3px 10px;border-radius:100px;border:1px solid #bbf7d0;">Management</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div style="margin:0 14px 12px;border:1px solid var(--border);border-radius:14px;padding:16px 18px;">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px;">📬 Get In Touch</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.7;">For partnerships, investor inquiries, or business collaborations — use the AI assistant (Vega) inside the app or reach out through our official channels once we launch.</div>
+      <div style="margin-top:12px;background:var(--p4);border-radius:10px;padding:11px 13px;font-size:11.5px;color:var(--ink2);line-height:1.7;">
+        🚀 <strong>Currently in Beta</strong> — Arthvega is actively onboarding early users and investors. Join the waitlist to get early access.
+      </div>
+    </div>
+
+    <!-- Footer / Founder credit -->
+    <div style="margin:0 14px;background:linear-gradient(135deg,#0f172a,#1e1b4b);border-radius:14px;padding:20px;text-align:center;">
+      <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin-bottom:4px;">Arth<span style="color:#a78bfa;">vega</span></div>
+      <div style="font-size:11px;color:#a78bfa;margin-bottom:14px;">Fast crypto payments for Indian freelancers</div>
+      <div style="height:1px;background:rgba(167,139,250,0.2);margin-bottom:14px;"></div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:6px;font-weight:500;">
+        Founder &amp; CEO — <span style="color:#a78bfa;font-weight:700;">B. Jayanth Reddy</span>
+      </div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:3px;font-weight:500;">
+        Co-Founder &amp; Manager — <span style="color:#34d399;font-weight:700;">Ranadeep</span>
+      </div>
+      <div style="font-size:10px;color:#4b5563;margin-top:6px;">© 2026 Arthvega Technologies Pvt. Ltd.</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="auth-page" id="page-terms-auth">
+  <div style="padding:20px 14px;"><button class="topbar-back" onclick="navigate('splash')" style="margin-bottom:14px;">← Back</button><div class="terms-h1">Terms & Conditions</div><div class="terms-p" style="margin-top:10px;">Create an account to read full Terms inside the app.</div><button class="btn btn-primary" style="margin-top:16px;" onclick="navigate('splash')">Got it ✓</button></div>
+</div>
+
+<!-- CRYPTO DETAIL PAGE -->
+<div class="page" id="page-crypto-detail" style="padding-bottom:80px;">
+  <div class="topbar">
+    <button class="topbar-back" onclick="navigate('invest')">← <span id="cd-name">Bitcoin</span></button>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--green);"><span class="live-dot"></span>LIVE</div>
+  </div>
+
+  <!-- Price Header -->
+  <div class="chart-container">
+    <div style="padding:16px 16px 12px;display:flex;align-items:center;gap:12px;">
+      <div id="cd-logo" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:600;color:var(--ink);" id="cd-fullname">Bitcoin</div>
+        <div style="font-size:11px;color:var(--ink3);" id="cd-symbol-label">BTC · Polygon</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="chart-price-big" id="cd-price">₹—</div>
+        <div class="chart-change-big" id="cd-change">—</div>
+      </div>
+    </div>
+
+    <!-- Chart Tabs -->
+    <div class="chart-tabs">
+      <button class="chart-tab active" onclick="loadChart('1h',this)">1H</button>
+      <button class="chart-tab" onclick="loadChart('24h',this)">24H</button>
+      <button class="chart-tab" onclick="loadChart('7d',this)">7D</button>
+      <button class="chart-tab" onclick="loadChart('30d',this)">1M</button>
+      <button class="chart-tab" onclick="loadChart('1y',this)">1Y</button>
+    </div>
+
+    <!-- Canvas Chart -->
+    <div style="padding:14px;background:var(--bg);">
+      <canvas id="price-chart" style="width:100%;height:180px;display:block;"></canvas>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="chart-stats">
+    <div class="chart-stat"><div class="chart-stat-label">Market Cap</div><div class="chart-stat-val" id="cd-mcap">—</div></div>
+    <div class="chart-stat"><div class="chart-stat-label">24h Volume</div><div class="chart-stat-val" id="cd-vol">—</div></div>
+    <div class="chart-stat"><div class="chart-stat-label">Rank</div><div class="chart-stat-val" id="cd-rank">#—</div></div>
+  </div>
+
+  <!-- About coin -->
+  <div style="margin:0 14px 14px;border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+    <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:6px;">About <span id="cd-about-name">Bitcoin</span></div>
+    <div style="font-size:11.5px;color:var(--ink2);line-height:1.7;" id="cd-about-text">Loading...</div>
+  </div>
+
+  <!-- Buy/Sell buttons -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 14px 14px;">
+    <button class="btn btn-primary" style="background:var(--green);" onclick="openCryptoModal(currentCryptoId);document.getElementById('bs-buy-tab').click();">Buy <span id="cd-sym-btn">BTC</span></button>
+    <button class="btn btn-primary" style="background:var(--red);" onclick="openCryptoModal(currentCryptoId);document.getElementById('bs-sell-tab').click();">Sell <span id="cd-sym-btn2">BTC</span></button>
+  </div>
+</div>
+
+<!-- TXN DETAIL PAGE -->
+<div class="page" id="page-txn-detail" style="padding-bottom:80px;">
+  <div class="topbar">
+    <button class="topbar-back" onclick="navigate('history')">← Transaction Detail</button>
+  </div>
+
+  <div class="txn-detail-icon" id="td-icon"></div>
+  <div class="txn-detail-amount" id="td-amount">—</div>
+  <div class="txn-detail-inr" id="td-inr">—</div>
+
+  <!-- Status bar -->
+  <div style="margin:14px;background:var(--green-bg);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;" id="td-status-bar">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">✓</div>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:var(--green);" id="td-status-text">Transaction Confirmed</div>
+      <div style="font-size:11px;color:var(--green);opacity:.8;" id="td-status-sub">Completed successfully on Polygon</div>
+    </div>
+  </div>
+
+  <!-- Progress steps -->
+  <div style="margin:0 14px 14px;border:1px solid var(--border);border-radius:12px;padding:14px 16px;" id="td-progress">
+    <div style="font-size:11px;font-weight:700;color:var(--ink);margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em;">Transaction Progress</div>
+    <div style="display:flex;flex-direction:column;gap:0;" id="td-steps"></div>
+  </div>
+
+  <!-- Transaction details -->
+  <div class="txn-detail-card">
+    <div class="txn-detail-row"><span class="txn-detail-label">Transaction Type</span><span class="txn-detail-value" id="td-type">—</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Date & Time</span><span class="txn-detail-value" id="td-date">—</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Network</span><span class="txn-detail-value">Polygon (MATIC)</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Gas Fee</span><span class="txn-detail-value">~0.001 MATIC ≈ ₹0.01</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Txn Hash</span><span class="txn-detail-value" id="td-hash" style="color:var(--p);cursor:pointer;" onclick="copyTxnHash()">—</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Block</span><span class="txn-detail-value" id="td-block">—</span></div>
+    <div class="txn-detail-row" id="td-to-row" style="display:none;"><span class="txn-detail-label">To Address</span><span class="txn-detail-value" id="td-to">—</span></div>
+    <div class="txn-detail-row"><span class="txn-detail-label">Explorer</span><a id="td-explorer" href="#" target="_blank" style="font-size:11px;color:var(--p);font-weight:600;">View on PolygonScan ↗</a></div>
+  </div>
+
+  <!-- Share -->
+  <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <button class="btn btn-secondary" onclick="copyTxnHash()" style="margin-top:0;">📋 Copy Hash</button>
+    <button class="btn btn-secondary" onclick="showToast('Share feature coming soon!')" style="margin-top:0;">↗ Share</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none;">
+  <button class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" id="nav-send" onclick="navigate('send')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <span class="nav-label">Send</span>
+  </button>
+  <button class="nav-item" id="nav-invest" onclick="navigate('invest')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+    <span class="nav-label">Markets</span>
+  </button>
+  <button class="nav-item" id="nav-history" onclick="navigate('history')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span class="nav-label">History</span>
+  </button>
+  <button class="nav-item" id="nav-profile" onclick="navigate('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span class="nav-label">Profile</span>
+  </button>
+</nav>
+</div>
+
+<!-- MODALS -->
+<!-- Send Confirm -->
+<div class="modal-overlay" id="send-confirm-modal" onclick="closeModal('send-confirm-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="warn-icon">⚠️</div>
+    <div class="modal-title">Confirm Transaction</div>
+    <div style="background:var(--red-bg);border-radius:10px;padding:11px 13px;margin-bottom:14px;font-size:11px;color:#7f1d1d;line-height:1.6;"><strong>This cannot be reversed.</strong> If you send to the wrong address, funds are <strong>permanently lost</strong>.</div>
+    <div style="background:var(--p4);border-radius:10px;padding:3px 13px;margin-bottom:14px;">
+      <div class="modal-detail-row"><span style="color:var(--ink3);">To</span><span style="font-weight:600;font-size:11px;" id="confirm-to">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Amount</span><span style="font-weight:600;" id="confirm-amt">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">≈ INR</span><span style="font-weight:600;" id="confirm-inr">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Network</span><span style="font-weight:600;">Polygon Mumbai</span></div>
+    </div>
+    <button class="btn btn-primary" id="confirm-send-btn" onclick="executeSend()">✓ Confirm & Send</button>
+    <button class="btn btn-red" onclick="closeModal('send-confirm-modal')">✗ Cancel</button>
+  </div>
+</div>
+
+<!-- Send Success -->
+<div class="modal-overlay" id="send-modal" onclick="closeModal('send-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="success-icon">✅</div>
+    <div class="modal-title">Transaction Sent!</div>
+    <div style="font-size:22px;font-weight:700;text-align:center;margin-bottom:3px;" id="modal-amount">—</div>
+    <div style="font-size:12px;color:var(--ink3);text-align:center;margin-bottom:14px;" id="modal-sub">—</div>
+    <div style="background:var(--p4);border-radius:10px;padding:3px 13px;margin-bottom:14px;">
+      <div class="modal-detail-row"><span style="color:var(--ink3);">To</span><span style="font-weight:600;font-size:11px;" id="modal-to">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Network</span><span style="font-weight:600;">Polygon Mumbai Testnet</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Status</span><span style="font-weight:600;color:var(--green);" id="modal-status">Confirmed ✓</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Txn Hash</span><span style="font-weight:600;font-size:10px;" id="modal-hash">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Explorer</span><a id="modal-explorer" href="#" target="_blank" style="font-size:11px;color:var(--p);font-weight:600;">View on PolygonScan ↗</a></div>
+    </div>
+    <button class="btn btn-primary" onclick="closeModal('send-modal');navigate('dashboard')">Back to Home</button>
+  </div>
+</div>
+
+<!-- Withdraw Success -->
+<div class="modal-overlay" id="wd-modal" onclick="closeModal('wd-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="success-icon">🏦</div>
+    <div class="modal-title">Withdrawal Initiated!</div>
+    <div style="font-size:22px;font-weight:700;text-align:center;margin-bottom:2px;" id="wd-modal-amount">—</div>
+    <div style="font-size:11px;color:var(--ink3);text-align:center;margin-bottom:14px;">Via CoinDCX · 1–2 business days</div>
+    <div style="background:var(--p4);border-radius:10px;padding:3px 13px;margin-bottom:14px;">
+      <div class="modal-detail-row"><span style="color:var(--ink3);">USDT</span><span style="font-weight:600;" id="wd-m-usdt">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Rate</span><span style="font-weight:600;" id="wd-m-rate">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">GST 18%</span><span style="font-weight:600;" id="wd-m-gst">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">TDS 1%</span><span style="font-weight:600;" id="wd-m-tds">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">You Receive</span><span style="font-weight:700;color:var(--green);" id="wd-m-final">—</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Reference</span><span style="font-weight:600;font-size:11px;" id="wd-m-ref">—</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="closeModal('wd-modal');navigate('dashboard')">Back to Home</button>
+  </div>
+</div>
+
+<!-- Crypto Buy/Sell Modal -->
+<div class="modal-overlay" id="crypto-modal" onclick="closeModal('crypto-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div id="modal-crypto-logo" style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;"></div>
+      <div>
+        <div style="font-size:16px;font-weight:700;" id="modal-crypto-name">—</div>
+        <div style="font-size:12px;color:var(--ink3);" id="modal-crypto-price">—</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;">
+        <div style="font-size:14px;font-weight:700;" id="modal-crypto-inr">—</div>
+        <div style="font-size:11px;font-weight:600;" id="modal-crypto-change">—</div>
+      </div>
+    </div>
+    <!-- Simulated mini chart -->
+    <div style="background:var(--p4);border-radius:11px;padding:12px;margin-bottom:14px;">
+      <div class="crypto-sparkline" id="modal-sparkline"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--ink3);"><span>7d low</span><span id="spark-low">—</span><span id="spark-high">—</span><span>7d high</span></div>
+    </div>
+    <div class="buy-sell-tabs">
+      <button class="bs-tab buy active" id="bs-buy-tab" onclick="switchBSTab('buy')">Buy</button>
+      <button class="bs-tab sell" id="bs-sell-tab" onclick="switchBSTab('sell')">Sell</button>
+    </div>
+    <div class="form-label">Amount (USDT)</div>
+    <div class="amt-wrap"><input class="form-input" id="crypto-amount" placeholder="Enter USDT amount" type="number" min="1" step="0.01" oninput="updateCryptoPreview()"/><span class="amt-suffix">USDT</span></div>
+    <div id="crypto-preview" style="display:none;background:var(--p4);border-radius:9px;padding:9px 13px;margin-bottom:14px;font-size:12px;color:var(--ink2);">
+      <div style="display:flex;justify-content:space-between;"><span>You get</span><span style="font-weight:600;color:var(--p);" id="crypto-get-amt">—</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;"><span>Rate</span><span style="font-weight:600;" id="crypto-get-rate">—</span></div>
+    </div>
+    <div style="background:var(--amber-bg);border-radius:9px;padding:9px 12px;margin-bottom:14px;font-size:10px;color:#92400e;line-height:1.5;">⚠️ Crypto is volatile. Prices change every second. Demo trade only.</div>
+    <button class="btn btn-primary" id="crypto-action-btn" onclick="executeCryptoTrade()">Buy Now</button>
+    <button class="btn btn-secondary" onclick="closeModal('crypto-modal')">Cancel</button>
+  </div>
+</div>
+
+<!-- Trade Success -->
+<div class="modal-overlay" id="trade-modal" onclick="closeModal('trade-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="success-icon" id="trade-icon">📈</div>
+    <div class="modal-title" id="trade-title">Trade Executed!</div>
+    <div style="font-size:20px;font-weight:700;text-align:center;margin-bottom:3px;" id="trade-amount">—</div>
+    <div style="font-size:12px;color:var(--ink3);text-align:center;margin-bottom:14px;" id="trade-sub">—</div>
+    <div style="background:var(--p4);border-radius:10px;padding:3px 13px;margin-bottom:14px;" id="trade-details"></div>
+    <button class="btn btn-primary" onclick="closeModal('trade-modal');navigate('invest')">View Portfolio</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- AI CHATBOT -->
+<button class="chatbot-fab" id="chatbot-fab" style="display:none;" onclick="toggleChat()">🤖</button>
+<div class="chatbot-window" id="chatbot-window">
+  <div class="chat-header">
+    <div class="chat-header-info"><div class="chat-avatar">🤖</div><div><div class="chat-name">Vega AI</div><div class="chat-status">● Online · Arthvega Assistant</div></div></div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-suggestions" id="chat-suggestions">
+    <button class="chat-sug" onclick="sendSuggestion('Is Bitcoin a good investment right now?')">BTC outlook?</button>
+    <button class="chat-sug" onclick="sendSuggestion('How do I buy crypto on Arthvega?')">How to buy?</button>
+    <button class="chat-sug" onclick="sendSuggestion('What are the withdrawal fees?')">Fees?</button>
+    <button class="chat-sug" onclick="sendSuggestion('What is Web3 irreversibility?')">Web3 risks</button>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chat-input" placeholder="Ask Vega anything..." onkeydown="if(event.key==='Enter')sendChatMessage()"/>
+    <button class="chat-send" onclick="sendChatMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+// ===== SUPABASE CONFIG =====
+const SUPABASE_URL = 'https://lgdcrrhxsqftaciknmkq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnZGNycmh4c3FmdGFjaWtubWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njc0NzIsImV4cCI6MjA4OTM0MzQ3Mn0.X39qZhA3M4zIL4Up6vgUMbQCyn7FhA-2fyHCJ5EKcXM';
+const SITE_URL = 'https://incredible-dasik-807529.netlify.app';
+
+// Init Supabase - retry until library loads
+let _supabase = null;
+function initSupabase() {
+  if(typeof supabase !== 'undefined' && !_supabase) {
+    _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { autoRefreshToken:true, persistSession:true, redirectTo:SITE_URL }
+    });
+    console.log('✅ Supabase connected');
+    checkSession();
+  } else if(!_supabase) {
+    setTimeout(initSupabase, 500); // retry every 500ms
+  }
+}
+document.addEventListener('DOMContentLoaded', initSupabase);
+
+// ===== NAVIGATION (defined first so onclick handlers work immediately) =====
+const mainPages=['dashboard','send','receive','history','withdraw','invest','profile','terms','about','crypto-detail','txn-detail'];
+const authPages=['splash','signup','login','terms-auth'];
+const navMap={dashboard:'nav-dashboard',send:'nav-send',history:'nav-history',profile:'nav-profile',invest:'nav-invest'};
+
+function navigate(page){
+  [...mainPages,...authPages].forEach(p=>{const el=document.getElementById('page-'+p);if(el)el.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const t=document.getElementById('page-'+page);if(t)t.classList.add('active');
+  if(navMap[page])document.getElementById(navMap[page]).classList.add('active');
+  if(page==='send'&&typeof walletAddress!=='undefined'&&!walletAddress){const p=document.getElementById('send-connect-prompt');if(p)p.style.display='block';}
+  window.scrollTo(0,0);
+}
+
+function showToast(msg){const t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function closeModal(id){const el=document.getElementById(id);if(el)el.classList.remove('open');}
+function openChat(){const w=document.getElementById('chatbot-window');if(w)w.classList.add('open');const f=document.getElementById('chatbot-fab');if(f)f.style.display='none';if(!document.getElementById('chat-messages').innerHTML)initChat();}
+function toggleChat(){const w=document.getElementById('chatbot-window'),f=document.getElementById('chatbot-fab');if(!w)return;const isOpen=w.classList.contains('open');w.classList.toggle('open');if(f)f.style.display=isOpen?'flex':'none';}
+
+// ===== STATE =====
+let liveRate=83.50, walletAddress=null, walletBalance=0, provider=null, signer=null;
+let userData={name:'',contact:'',type:''};
+let holdings=[], chatHistory=[], pendingSend={};
+let otpTimer=null, bsMode='buy', activeCrypto=null;
+const USDT_MUMBAI='0xA02f6adc7926efeBBd59Fd43A84f4E0c0c91e832';
+const USDT_ABI=['function balanceOf(address owner) view returns (uint256)','function transfer(address to, uint256 amount) returns (bool)','function decimals() view returns (uint8)'];
+
+// Crypto definitions
+const CRYPTOS=[
+  {id:'bitcoin',symbol:'BTC',name:'Bitcoin',emoji:'₿',color:'#f7931a',bg:'#fff7ed'},
+  {id:'ethereum',symbol:'ETH',name:'Ethereum',emoji:'Ξ',color:'#627eea',bg:'#eff2ff'},
+  {id:'matic-network',symbol:'MATIC',name:'Polygon',emoji:'⬟',color:'#8247e5',bg:'#f5f0ff'},
+  {id:'solana',symbol:'SOL',name:'Solana',emoji:'◎',color:'#9945ff',bg:'#f5f0ff'},
+  {id:'tether',symbol:'USDT',name:'Tether',emoji:'₮',color:'#26a17b',bg:'#f0fdf4'},
+  {id:'binancecoin',symbol:'BNB',name:'BNB',emoji:'B',color:'#f3ba2f',bg:'#fffbeb'},
+  {id:'ripple',symbol:'XRP',name:'XRP',emoji:'✕',color:'#00aae4',bg:'#e0f7ff'},
+  {id:'cardano',symbol:'ADA',name:'Cardano',emoji:'₳',color:'#0033ad',bg:'#e6eeff'},
+  {id:'dogecoin',symbol:'DOGE',name:'Dogecoin',emoji:'Ð',color:'#c2a633',bg:'#fefce8'},
+  {id:'avalanche-2',symbol:'AVAX',name:'Avalanche',emoji:'A',color:'#e84142',bg:'#fee2e2'},
+  {id:'chainlink',symbol:'LINK',name:'Chainlink',emoji:'⬡',color:'#2a5ada',bg:'#eff6ff'},
+  {id:'uniswap',symbol:'UNI',name:'Uniswap',emoji:'🦄',color:'#ff007a',bg:'#fff0f7'},
+];
+
+let cryptoPrices={};
+let priceHistory={}; // store last 10 prices for sparkline
+let lastPrices={}; // to detect price changes
+let autoRefreshInterval=null;
+
+// ===== REAL TIME FETCH =====
+async function fetchAllRates(){
+  const updEl=document.getElementById('rate-updated');
+  const mktEl=document.getElementById('market-updated');
+  if(updEl) updEl.textContent='Updating...';
+  if(mktEl) mktEl.textContent='Updating...';
+
+  try{
+    // Call our own Netlify serverless function - no CORS issues!
+    const r = await fetch('/.netlify/functions/prices');
+    if(!r.ok) throw new Error('Function error: '+r.status);
+    const result = await r.json();
+
+    if(!result.success) throw new Error(result.error||'API error');
+
+    const d = result.data;
+    liveRate = result.usdInr || liveRate;
+
+    // Process CoinGecko data
+    Object.entries(d).forEach(([id, info])=>{
+      const usd = info.usd||0;
+      const inr = info.inr||(usd*liveRate);
+      const change = info.usd_24h_change||0;
+      const vol = info.usd_24h_vol||0;
+
+      if(lastPrices[id]&&usd&&usd!==lastPrices[id]) flashPrice(id,usd>lastPrices[id]?'up':'down');
+      lastPrices[id] = usd;
+      if(!priceHistory[id]) priceHistory[id]=[];
+      if(usd){priceHistory[id].push(usd);if(priceHistory[id].length>15)priceHistory[id].shift();}
+      cryptoPrices[id] = {usd, inr, usd_24h_change:change, usd_24h_vol:vol};
+    });
+
+    console.log('✅ Live prices loaded! BTC: $'+d.bitcoin?.usd);
+    updateUI('CoinGecko Live');
+    return;
+  }catch(e){
+    console.log('Netlify function failed:', e.message);
+  }
+
+  // Final fallback
+  useFallbackPrices();
+}
+
+
+function useFallbackPrices(){
+  // Realistic prices as of March 2026 - shown only when ALL APIs fail
+  const r=liveRate||83.5;
+  const fb={
+    bitcoin:{usd:88500,inr:88500*r,usd_24h_change:1.8,usd_24h_vol:42e9},
+    ethereum:{usd:3450,inr:3450*r,usd_24h_change:2.1,usd_24h_vol:18e9},
+    solana:{usd:168,inr:168*r,usd_24h_change:3.2,usd_24h_vol:4e9},
+    'matic-network':{usd:0.85,inr:0.85*r,usd_24h_change:-1.2,usd_24h_vol:600e6},
+    tether:{usd:1,inr:r,usd_24h_change:0,usd_24h_vol:95e9},
+    binancecoin:{usd:620,inr:620*r,usd_24h_change:0.8,usd_24h_vol:2e9},
+    ripple:{usd:0.62,inr:0.62*r,usd_24h_change:2.4,usd_24h_vol:3e9},
+    cardano:{usd:0.48,inr:0.48*r,usd_24h_change:-0.9,usd_24h_vol:500e6},
+    dogecoin:{usd:0.15,inr:0.15*r,usd_24h_change:4.1,usd_24h_vol:1.2e9},
+    'avalanche-2':{usd:38,inr:38*r,usd_24h_change:1.5,usd_24h_vol:400e6},
+    chainlink:{usd:16,inr:16*r,usd_24h_change:2.0,usd_24h_vol:500e6},
+    uniswap:{usd:11,inr:11*r,usd_24h_change:-0.5,usd_24h_vol:200e6},
+  };
+  Object.assign(cryptoPrices,fb);
+  const updEl=document.getElementById('rate-updated');
+  const mktEl=document.getElementById('market-updated');
+  if(updEl) updEl.textContent='Estimated (API blocked)';
+  if(mktEl) mktEl.textContent='⚠️ Live prices unavailable';
+  renderCryptoGrid(); updateDashboard(); updatePortfolio(); updateTickerBar();
+}
+
+
+function updateUI(source){
+  const now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const ch=cryptoPrices['tether']?.usd_24h_change||0;
+  if(document.getElementById('live-rate')) document.getElementById('live-rate').textContent='1 USDT = ₹'+liveRate.toFixed(2);
+  const rce=document.getElementById('rate-change');
+  if(rce){rce.textContent=(ch>=0?'▲ +':'▼ ')+Math.abs(ch).toFixed(2)+'% (24h)';rce.style.color=ch>=0?'var(--green)':'var(--red)';}
+  const updEl=document.getElementById('rate-updated');
+  const mktEl=document.getElementById('market-updated');
+  if(updEl) updEl.textContent='Updated '+now;
+  if(mktEl) mktEl.textContent='Live · '+(source||'API')+' · '+now;
+  if(document.getElementById('wd-rate')) document.getElementById('wd-rate').textContent='1 USDT = ₹'+liveRate.toFixed(2);
+  if(document.getElementById('wd-min')) document.getElementById('wd-min').textContent='≈ ₹'+(10*liveRate).toFixed(0);
+  renderCryptoGrid(); updateDashboard(); updatePortfolio(); updateTickerBar();
+}
+
+
+// Flash animation when price changes
+function flashPrice(id, direction){
+  const el=document.getElementById('price-'+id);
+  if(!el) return;
+  el.style.transition='background 0.3s';
+  el.style.background=direction==='up'?'#dcfce7':'#fee2e2';
+  setTimeout(()=>{el.style.background='transparent';},600);
+}
+
+// Update scrolling ticker bar
+function updateTickerBar(){
+  const ticker=document.getElementById('ticker-bar');
+  if(!ticker||!Object.keys(cryptoPrices).length) return;
+  ticker.innerHTML=CRYPTOS.slice(0,8).map(c=>{
+    const d=cryptoPrices[c.id];
+    if(!d) return '';
+    const ch=d.usd_24h_change||0;
+    const pos=ch>=0;
+    return '<span style="margin:0 18px;white-space:nowrap;">'+
+      '<span style="font-weight:700;color:var(--ink);">'+c.symbol+'</span> '+
+      '<span style="color:var(--ink2);">₹'+formatPrice(d.inr||0)+'</span> '+
+      '<span style="color:'+(pos?'var(--green)':'var(--red)')+';">'+(pos?'▲+':'▼')+Math.abs(ch).toFixed(2)+'%</span>'+
+    '</span>';
+  }).join('<span style="color:var(--border);">|</span>');
+}
+
+// Start auto refresh every 30 seconds
+function startAutoRefresh(){
+  if(autoRefreshInterval) clearInterval(autoRefreshInterval);
+  autoRefreshInterval=setInterval(fetchAllRates, 30000);
+}
+
+// ===== RENDER CRYPTO GRID =====
+function renderCryptoGrid(){
+  const grid=document.getElementById('crypto-grid');
+  if(!grid) return;
+  grid.innerHTML=CRYPTOS.map(c=>{
+    const data=cryptoPrices[c.id];
+    const priceUSD=data?.usd||0;
+    const priceINR=data?.inr||0;
+    const change=data?.usd_24h_change||0;
+    const vol=data?.usd_24h_vol||0;
+    const posChg=change>=0;
+    // Real sparkline from price history
+    const hist=priceHistory[c.id]||[];
+    let sparkBars='';
+    if(hist.length>1){
+      const mx=Math.max(...hist),mn=Math.min(...hist);
+      sparkBars=hist.map(v=>{
+        const h=Math.max(4,((v-mn)/(mx-mn||1))*26+4);
+        return`<div class="spark-bar" style="background:${posChg?'#16a34a':'#dc2626'};height:${h}px;opacity:0.75;"></div>`;
+      }).join('');
+    } else {
+      // Flat line while loading
+      sparkBars=Array(10).fill(`<div class="spark-bar" style="background:var(--border);height:6px;"></div>`).join('');
+    }
+    const holdingAmt=holdings.filter(h=>h.crypto===c.id).reduce((s,h)=>s+h.cryptoAmt,0);
+    const volStr=vol>1e9?(vol/1e9).toFixed(1)+'B':vol>1e6?(vol/1e6).toFixed(0)+'M':'—';
+    return`<div class="crypto-card" onclick="openCryptoDetail('${c.id}')" id="card-${c.id}">
+      <div class="crypto-card-row">
+        <div class="crypto-logo" style="background:${c.bg};color:${c.color};font-weight:800;">${c.emoji}</div>
+        <div class="crypto-info">
+          <div class="crypto-name">${c.name}</div>
+          <div class="crypto-symbol">${c.symbol} ${holdingAmt>0?'· <span style="color:var(--green);">Holding</span>':''}</div>
+        </div>
+        <div class="crypto-price-col">
+          <div class="crypto-price" id="price-${c.id}" style="border-radius:6px;padding:2px 4px;transition:background 0.4s;">${priceINR?'₹'+formatPrice(priceINR):'<span style="color:var(--ink3);font-size:11px;">Loading...</span>'}</div>
+          <div class="crypto-change ${posChg?'pos':'neg'}" style="font-size:11px;">${posChg?'▲ +':'▼ '}${Math.abs(change).toFixed(2)}%</div>
+          <div style="font-size:9px;color:var(--ink3);margin-top:1px;">Vol $${volStr}</div>
+        </div>
+      </div>
+      <div class="crypto-sparkline">${sparkBars}</div>
+    </div>`;
+  }).join('');
+}
+
+function formatPrice(p){
+  if(!p||isNaN(p)) return '—';
+  if(p>=10000000) return(p/10000000).toFixed(2)+'Cr';
+  if(p>=100000) return(p/100000).toFixed(2)+'L';
+  if(p>=1000) return p.toLocaleString('en-IN',{maximumFractionDigits:0});
+  if(p>=1) return p.toFixed(2);
+  return p.toFixed(4);
+}
+
+
+// ===== CRYPTO MODAL =====
+let currentBSTab='buy';
+function openCryptoModal(cryptoId){
+  activeCrypto=CRYPTOS.find(c=>c.id===cryptoId);
+  if(!activeCrypto)return;
+  const data=cryptoPrices[cryptoId];
+  const priceINR=data?.inr||0;
+  const priceUSD=data?.usd||0;
+  const change=data?.usd_24h_change||0;
+  document.getElementById('modal-crypto-logo').style.background=activeCrypto.bg;
+  document.getElementById('modal-crypto-logo').style.color=activeCrypto.color;
+  document.getElementById('modal-crypto-logo').textContent=activeCrypto.emoji;
+  document.getElementById('modal-crypto-name').textContent=activeCrypto.name+' ('+activeCrypto.symbol+')';
+  document.getElementById('modal-crypto-price').textContent='$'+priceUSD.toLocaleString('en-US',{maximumFractionDigits:2});
+  document.getElementById('modal-crypto-inr').textContent=priceINR?'₹'+formatPrice(priceINR):'—';
+  const chEl=document.getElementById('modal-crypto-change');
+  chEl.textContent=(change>=0?'▲ +':'▼ ')+Math.abs(change).toFixed(2)+'%';
+  chEl.style.color=change>=0?'var(--green)':'var(--red)';
+  // Sparkline
+  const sparkMax=Math.max(...activeCrypto.spark),sparkMin=Math.min(...activeCrypto.spark);
+  document.getElementById('modal-sparkline').innerHTML=activeCrypto.spark.map(v=>{
+    const h=Math.max(6,((v-sparkMin)/(sparkMax-sparkMin||1))*44+6);
+    return`<div class="spark-bar" style="background:${change>=0?'var(--green)':'var(--red)'};height:${h}px;opacity:0.8;border-radius:2px;"></div>`;
+  }).join('');
+  const low=(priceINR*0.88).toFixed(0),high=(priceINR*1.12).toFixed(0);
+  document.getElementById('spark-low').textContent='₹'+formatPrice(parseInt(low));
+  document.getElementById('spark-high').textContent='₹'+formatPrice(parseInt(high));
+  document.getElementById('crypto-amount').value='';
+  document.getElementById('crypto-preview').style.display='none';
+  switchBSTab('buy');
+  document.getElementById('crypto-modal').classList.add('open');
+}
+
+function switchBSTab(mode){
+  currentBSTab=mode;
+  document.getElementById('bs-buy-tab').classList.toggle('active',mode==='buy');
+  document.getElementById('bs-sell-tab').classList.toggle('active',mode==='sell');
+  document.getElementById('crypto-action-btn').textContent=mode==='buy'?'Buy '+activeCrypto?.symbol:'Sell '+activeCrypto?.symbol;
+  document.getElementById('crypto-action-btn').style.background=mode==='buy'?'var(--green)':'var(--red)';
+  updateCryptoPreview();
+}
+
+function updateCryptoPreview(){
+  const amt=parseFloat(document.getElementById('crypto-amount').value)||0;
+  if(!activeCrypto||amt<=0){document.getElementById('crypto-preview').style.display='none';return;}
+  const priceINR=cryptoPrices[activeCrypto.id]?.inr||1;
+  const cryptoAmt=currentBSTab==='buy'?(amt*liveRate)/priceINR:amt;
+  const usdt=currentBSTab==='buy'?amt:(amt*priceINR)/liveRate;
+  document.getElementById('crypto-preview').style.display='block';
+  document.getElementById('crypto-get-amt').textContent=currentBSTab==='buy'?cryptoAmt.toFixed(6)+' '+activeCrypto.symbol:usdt.toFixed(2)+' USDT';
+  document.getElementById('crypto-get-rate').textContent='1 '+activeCrypto.symbol+' = ₹'+formatPrice(priceINR);
+}
+
+function executeCryptoTrade(){
+  const amt=parseFloat(document.getElementById('crypto-amount').value);
+  if(!amt||amt<=0){showToast('⚠️ Enter amount');return;}
+  if(!activeCrypto)return;
+  const priceINR=cryptoPrices[activeCrypto.id]?.inr||1;
+  const priceUSD=cryptoPrices[activeCrypto.id]?.usd||0;
+  const change=cryptoPrices[activeCrypto.id]?.usd_24h_change||0;
+  if(currentBSTab==='buy'){
+    const cryptoAmt=(amt*liveRate)/priceINR;
+    holdings.push({crypto:activeCrypto.id,symbol:activeCrypto.symbol,emoji:activeCrypto.emoji,color:activeCrypto.color,bg:activeCrypto.bg,cryptoAmt,usdt:amt,buyPriceINR:priceINR,date:new Date().toLocaleDateString('en-IN')});
+    allTxns.unshift({type:'invest',name:'Bought '+activeCrypto.symbol,date:'Just now',usdt:'-'+amt.toFixed(2),status:'success',hash:'TRD-'+Date.now().toString().slice(-8)});
+    document.getElementById('trade-icon').textContent='📈';
+    document.getElementById('trade-title').textContent='Purchased '+activeCrypto.symbol+'!';
+    document.getElementById('trade-amount').textContent=cryptoAmt.toFixed(6)+' '+activeCrypto.symbol;
+    document.getElementById('trade-sub').textContent='≈ ₹'+(cryptoAmt*priceINR).toLocaleString('en-IN',{maximumFractionDigits:0})+' at live price';
+    document.getElementById('trade-details').innerHTML=`
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Paid</span><span style="font-weight:600;">${amt.toFixed(2)} USDT</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Buy Price</span><span style="font-weight:600;">₹${formatPrice(priceINR)}</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">24h Change</span><span style="font-weight:600;color:${change>=0?'var(--green)':'var(--red)'}">${change>=0?'+':''}${change.toFixed(2)}%</span></div>
+    `;
+  }else{
+    const usdt=(amt*priceINR)/liveRate;
+    allTxns.unshift({type:'invest',name:'Sold '+activeCrypto.symbol,date:'Just now',usdt:'+'+usdt.toFixed(2),status:'success',hash:'TRD-'+Date.now().toString().slice(-8)});
+    document.getElementById('trade-icon').textContent='💰';
+    document.getElementById('trade-title').textContent='Sold '+activeCrypto.symbol+'!';
+    document.getElementById('trade-amount').textContent=usdt.toFixed(2)+' USDT';
+    document.getElementById('trade-sub').textContent='Received for '+amt.toFixed(6)+' '+activeCrypto.symbol;
+    document.getElementById('trade-details').innerHTML=`
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Sold</span><span style="font-weight:600;">${amt.toFixed(6)} ${activeCrypto.symbol}</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Sell Price</span><span style="font-weight:600;">₹${formatPrice(priceINR)}</span></div>
+      <div class="modal-detail-row"><span style="color:var(--ink3);">Received</span><span style="font-weight:600;color:var(--green);">${usdt.toFixed(2)} USDT</span></div>
+    `;
+  }
+  closeModal('crypto-modal');
+  updatePortfolio(); updateDashboard(); renderCryptoGrid();
+  document.getElementById('trade-modal').classList.add('open');
+}
+
+// ===== PORTFOLIO =====
+function updatePortfolio(){
+  if(!holdings.length){
+    document.getElementById('holdings-section').style.display='none';
+    document.getElementById('portfolio-val').textContent='₹0.00';
+    document.getElementById('portfolio-usdt').textContent='0.00 USDT invested';
+    document.getElementById('portfolio-pnl').textContent='+₹0';
+    document.getElementById('portfolio-assets').textContent='0';
+    document.getElementById('portfolio-best').textContent='—';
+    return;
+  }
+  document.getElementById('holdings-section').style.display='block';
+  let totalINR=0, totalPNL=0, bestAsset={symbol:'—',change:-999};
+  const holdingMap={};
+  holdings.forEach(h=>{
+    if(!holdingMap[h.crypto])holdingMap[h.crypto]={...h,totalAmt:0,totalCost:0};
+    holdingMap[h.crypto].totalAmt+=h.cryptoAmt;
+    holdingMap[h.crypto].totalCost+=h.usdt;
+  });
+  const rows=Object.values(holdingMap).map(h=>{
+    const curPriceINR=cryptoPrices[h.crypto]?.inr||h.buyPriceINR;
+    const curVal=h.totalAmt*curPriceINR;
+    const costINR=h.totalCost*liveRate;
+    const pnl=curVal-costINR;
+    const pnlPct=(pnl/costINR*100)||0;
+    totalINR+=curVal;
+    totalPNL+=pnl;
+    if(pnlPct>bestAsset.change)bestAsset={symbol:h.symbol,change:pnlPct};
+    return`<div class="holding-row">
+      <div class="holding-logo" style="background:${h.bg};color:${h.color};">${h.emoji}</div>
+      <div class="holding-info"><div class="holding-name">${h.symbol}</div><div class="holding-amt">${h.totalAmt.toFixed(4)} ${h.symbol}</div></div>
+      <div class="holding-val">
+        <div class="holding-inr">₹${curVal.toLocaleString('en-IN',{maximumFractionDigits:0})}</div>
+        <div class="holding-pnl ${pnl>=0?'pos':'neg'}">${pnl>=0?'+':''} ₹${Math.abs(pnl).toFixed(0)} (${pnlPct.toFixed(1)}%)</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('holdings-list').innerHTML=rows;
+  document.getElementById('portfolio-val').textContent='₹'+totalINR.toLocaleString('en-IN',{maximumFractionDigits:0});
+  document.getElementById('portfolio-usdt').textContent=holdings.reduce((s,h)=>s+h.usdt,0).toFixed(2)+' USDT invested';
+  document.getElementById('portfolio-pnl').textContent=(totalPNL>=0?'+':'')+' ₹'+Math.abs(totalPNL).toFixed(0);
+  document.getElementById('portfolio-pnl').style.color=totalPNL>=0?'#a78bfa':'#fca5a5';
+  document.getElementById('portfolio-assets').textContent=Object.keys(holdingMap).length;
+  document.getElementById('portfolio-best').textContent=bestAsset.symbol+(bestAsset.change>0?' +'+bestAsset.change.toFixed(1)+'%':'');
+}
+
+// ===== METAMASK =====
+async function connectMetaMask(){
+  if(typeof window.ethereum==='undefined'){showToast('🦊 Install MetaMask first');window.open('https://metamask.io/download/','_blank');return;}
+  try{
+    showToast('🦊 Connecting...');
+    await window.ethereum.request({method:'eth_requestAccounts'});
+    try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x13881'}]});}
+    catch(sw){if(sw.code===4902){await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:'0x13881',chainName:'Polygon Mumbai Testnet',nativeCurrency:{name:'MATIC',symbol:'MATIC',decimals:18},rpcUrls:['https://rpc-mumbai.maticvigil.com/'],blockExplorerUrls:['https://mumbai.polygonscan.com/']}]});}}
+    provider=new ethers.BrowserProvider(window.ethereum);
+    signer=await provider.getSigner();
+    walletAddress=await signer.getAddress();
+    const maticBal=await provider.getBalance(walletAddress);
+    walletBalance=parseFloat(ethers.formatEther(maticBal));
+    try{const u=new ethers.Contract(USDT_MUMBAI,USDT_ABI,provider);const rb=await u.balanceOf(walletAddress);walletBalance=parseFloat(ethers.formatUnits(rb,6));}catch(e){}
+    onWalletConnected();
+  }catch(e){if(e.code===4001)showToast('❌ Rejected');else showToast('⚠️ '+(e.message||'Failed').slice(0,50));}
+}
+
+function onWalletConnected(){
+  const short=walletAddress.slice(0,8)+'...'+walletAddress.slice(-6);
+  showToast('✅ Wallet connected!');
+  document.getElementById('dash-wallet').textContent=short;
+  document.getElementById('receive-addr').textContent=walletAddress;
+  const b=document.getElementById('wallet-badge');
+  b.textContent='🟢 '+short;b.style.background='var(--green-bg)';b.style.color='var(--green)';b.style.display='block';
+  document.getElementById('send-balance').textContent=walletBalance.toFixed(4)+' USDT';
+  document.getElementById('send-bal-inr').textContent='≈ ₹'+(walletBalance*liveRate).toFixed(2);
+  document.getElementById('send-connect-prompt').style.display='none';
+  document.getElementById('metamask-item').textContent='🦊 '+short+' (Connected)';
+  document.getElementById('wd-balance').textContent=walletBalance.toFixed(4)+' USDT';
+  document.getElementById('wd-inr-val').textContent='≈ ₹'+(walletBalance*liveRate).toFixed(2);
+  document.getElementById('kyc-wallet-val').textContent=short;
+  document.getElementById('kyc-wallet-chip').textContent='Verified ✓';document.getElementById('kyc-wallet-chip').className='status-chip success';
+  document.getElementById('kyc-wallet-num').style.background='var(--green-bg)';document.getElementById('kyc-wallet-num').style.color='var(--green)';document.getElementById('kyc-wallet-num').textContent='✓';
+  updateDashboard();
+  if(document.getElementById('page-splash').classList.contains('active'))showApp();
+}
+
+// ===== AUTH — Supabase =====
+async function signupEmail(){
+  const name=document.getElementById('signup-name-email').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-password').value;
+  if(!name){showToast('⚠️ Enter your name');return;}
+  if(!email||!email.includes('@')){showToast('⚠️ Enter valid email');return;}
+  if(pass.length<6){showToast('⚠️ Password min 6 characters');return;}
+  if(!_supabase){showToast('⏳ Still loading... wait 3 seconds and try again');return;}
+  const btn=document.querySelector('#page-signup .btn-primary');
+  btn.textContent='⏳ Creating...';btn.disabled=true;
+  try{
+    const{data,error}=await _supabase.auth.signUp({email,password:pass});
+    if(error){
+      if(error.message.toLowerCase().includes('already')||error.message.toLowerCase().includes('registered')){
+        showToast('👋 Account exists! Try signing in instead.');
+        document.getElementById('login-email').value=email;
+        document.getElementById('login-password').value=pass;
+        navigate('login');return;
+      }
+      showToast('❌ '+error.message);return;
+    }
+    if(data?.user){
+      userData={name,contact:email,type:'email'};
+      try{await _supabase.from('profiles').upsert({id:data.user.id,name,created_at:new Date().toISOString()});}catch(e){}
+      if(data.session){
+        showToast('✅ Welcome '+name+'! 🎉');
+        showApp();return;
+      }
+    }
+    showToast('📧 Check your email and click the confirmation link, then sign in.');
+    navigate('login');
+  }catch(e){showToast('❌ '+e.message);}
+  finally{btn.textContent='Create Account →';btn.disabled=false;}
+}
+
+async function loginEmail(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  if(!email||!email.includes('@')){showToast('⚠️ Enter valid email');return;}
+  if(!pass){showToast('⚠️ Enter password');return;}
+  if(!_supabase){showToast('⏳ Still loading... wait 3 seconds and try again');return;}
+  const btn=document.querySelector('#page-login .btn-primary');
+  btn.textContent='⏳ Signing in...';btn.disabled=true;
+  try{
+    const{data,error}=await _supabase.auth.signInWithPassword({email,password:pass});
+    if(error){
+      if(error.message.toLowerCase().includes('confirm')||error.message.toLowerCase().includes('not confirmed')){
+        showToast('📧 Check your email inbox and click the confirmation link first!');
+      }else if(error.message.toLowerCase().includes('invalid')||error.message.toLowerCase().includes('credentials')){
+        showToast('❌ Wrong email or password. Try again.');
+      }else{
+        showToast('❌ '+error.message);
+      }
+      return;
+    }
+    const name=data.user.user_metadata?.name||email.split('@')[0];
+    userData={name,contact:email,type:'email'};
+    showToast('✅ Welcome back, '+name+'! 🎉');
+    showApp();
+  }catch(e){showToast('❌ '+e.message);}
+  finally{btn.textContent='Sign In →';btn.disabled=false;}
+}
+
+async function forgotPassword(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email||!email.includes('@')){showToast('\u26a0\ufe0f Enter your email first');return;}
+  if(!_supabase)return;
+  const{error}=await _supabase.auth.resetPasswordForEmail(email,{redirectTo:SITE_URL});
+  if(error){showToast('\u274c '+error.message);return;}
+  showToast('\u2705 Password reset link sent to '+email);
+}
+async function checkSession(){
+  if(!_supabase)return;
+  try{
+    const{data:{session}}=await _supabase.auth.getSession();
+    if(session){
+      let profile=null;try{const r=await _supabase.from('profiles').select('name,phone').eq('id',session.user.id).single();profile=r.data;}catch(e){}
+      userData={name:profile?.name||session.user.user_metadata?.name||session.user.email?.split('@')[0]||'User',contact:profile?.phone||session.user.email||'',type:session.user.phone?'phone':'email'};
+      showApp();
+    }
+  }catch(e){console.log('Session check:',e);}
+}
+let appLaunched = false;
+function showApp(){
+  if(appLaunched) return;
+  appLaunched = true;
+  document.querySelectorAll('.auth-page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('bottom-nav').style.display='flex';
+  document.getElementById('chatbot-fab').style.display='flex';
+  const name=userData.name||'User';
+  document.getElementById('profile-name').textContent=name;
+  document.getElementById('profile-contact').textContent=userData.contact||'—';
+  document.getElementById('profile-avatar').textContent=name.charAt(0).toUpperCase();
+  document.getElementById('kyc-identity').textContent=(userData.contact||'—')+' — Verified';
+  navigate('dashboard');
+  fetchAllRates();
+  startAutoRefresh();
+  setInterval(fetchAllRates,60000);
+  if(typeof window.ethereum!=='undefined'){
+    const p=document.getElementById('send-connect-prompt');
+    if(p)p.style.display='block';
+  }
+  initChat();
+}
+
+// ===== DASHBOARD =====
+const allTxns=[
+  {type:'recv',name:'International Client',date:'Today, 2:14 PM',usdt:'+50.00',status:'success',hash:'0xabc1234def'},
+  {type:'send',name:'Team Member',date:'Today, 11:30 AM',usdt:'-20.00',status:'success',hash:'0xdef5678ghi'},
+  {type:'withdraw',name:'Bank Transfer',date:'Yesterday',usdt:'-30.00',status:'success',hash:'WD-2026-001'},
+  {type:'invest',name:'Bought BTC',date:'Mar 16',usdt:'-100.00',status:'success',hash:'TRD-2026-001'},
+  {type:'recv',name:'Freelance Payment',date:'Mar 15',usdt:'+75.00',status:'success',hash:'0xghi9012jkl'},
+];
+function updateDashboard(){document.getElementById('dash-balance').textContent='₹'+(walletBalance*liveRate).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});document.getElementById('dash-usdt').textContent=walletBalance.toFixed(4)+' USDT';renderTxns(allTxns.slice(0,4),'dash-txns');}
+function renderTxns(list,id){
+  const c=document.getElementById(id);if(!c)return;
+  if(!list.length){c.innerHTML='<div style="text-align:center;padding:30px;color:var(--ink3);font-size:12px;">No transactions</div>';return;}
+  const icons={recv:{bg:'recv',e:'↓'},send:{bg:'send',e:'↑'},withdraw:{bg:'withdraw',e:'🏦'},invest:{bg:'invest',e:'📈'}};
+  c.innerHTML=list.map((t,i)=>{
+    const ic=icons[t.type]||icons.send;
+    const inr=(t.usdt.startsWith('+')?'+':'-')+'₹'+(Math.abs(parseFloat(t.usdt))*liveRate).toFixed(0);
+    return`<div class="txn-row" onclick="openTxnDetail(allTxns[${allTxns.indexOf(t)}]||allTxns[0])" style="cursor:pointer;">
+      <div class="txn-icon ${ic.bg}">${ic.e}</div>
+      <div class="txn-info">
+        <div class="txn-name">${t.name}</div>
+        <div class="txn-date">${t.date}</div>
+      </div>
+      <div class="txn-amount">
+        <div class="txn-usdt ${t.usdt.startsWith('+')?'pos':'neg'}">${t.usdt} USDT</div>
+        <div class="txn-inr">${inr}</div>
+        <span class="status-chip ${t.status}">${t.status}</span>
+      </div>
+      <div style="color:var(--ink3);font-size:16px;margin-left:4px;">›</div>
+    </div>`;
+  }).join('');
+}
+function filterTxns(type,btn){document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTxns(type==='all'?allTxns:allTxns.filter(t=>t.type===type),'history-txns');}
+
+// ===== SEND =====
+function updateSendPreview(){const a=parseFloat(document.getElementById('send-amount').value)||0;document.getElementById('send-inr-preview').textContent='≈ ₹'+(a*liveRate).toFixed(2);}
+function checkAddressWarning(){const addr=document.getElementById('send-address').value.trim();document.getElementById('address-warning').style.display=addr.length>5?'block':'none';}
+function confirmSend(){const addr=document.getElementById('send-address').value.trim(),amt=parseFloat(document.getElementById('send-amount').value);if(!addr){showToast('⚠️ Enter address');return;}if(!amt||amt<=0){showToast('⚠️ Enter amount');return;}if(!walletAddress){showToast('⚠️ Connect MetaMask');connectMetaMask();return;}if(!ethers.isAddress(addr)){showToast('⚠️ Invalid Polygon address');return;}pendingSend={addr,amt};document.getElementById('confirm-to').textContent=addr.slice(0,10)+'...'+addr.slice(-8);document.getElementById('confirm-amt').textContent=amt.toFixed(4)+' USDT';document.getElementById('confirm-inr').textContent='≈ ₹'+(amt*liveRate).toFixed(2);document.getElementById('send-confirm-modal').classList.add('open');}
+async function executeSend(){const{addr,amt}=pendingSend;const btn=document.getElementById('confirm-send-btn');btn.innerHTML='<span class="spinner"></span> Confirm in MetaMask...';btn.disabled=true;closeModal('send-confirm-modal');try{const usdt=new ethers.Contract(USDT_MUMBAI,USDT_ABI,signer);const amtU=ethers.parseUnits(amt.toString(),6);showToast('📤 Waiting for MetaMask...');const tx=await usdt.transfer(addr,amtU);showToast('⛓️ Confirming...');const receipt=await tx.wait();walletBalance=Math.max(0,walletBalance-amt);allTxns.unshift({type:'send',name:addr.slice(0,8)+'...'+addr.slice(-6),date:'Just now',usdt:'-'+amt.toFixed(4),status:'success',hash:receipt.hash});document.getElementById('modal-amount').textContent=amt.toFixed(4)+' USDT';document.getElementById('modal-sub').textContent='≈ ₹'+(amt*liveRate).toFixed(2);document.getElementById('modal-to').textContent=addr.slice(0,10)+'...'+addr.slice(-8);document.getElementById('modal-hash').textContent=receipt.hash.slice(0,16)+'...';document.getElementById('modal-explorer').href='https://mumbai.polygonscan.com/tx/'+receipt.hash;document.getElementById('send-address').value='';document.getElementById('send-amount').value='';document.getElementById('address-warning').style.display='none';updateDashboard();document.getElementById('send-modal').classList.add('open');}catch(e){if(e.code===4001)showToast('❌ Rejected');else showToast('⚠️ Failed: '+(e.reason||e.message||'Error').slice(0,50));}finally{btn.innerHTML='✓ Confirm & Send';btn.disabled=false;}}
+
+// ===== RECEIVE =====
+function copyAddress(){navigator.clipboard.writeText(walletAddress||'Connect wallet').catch(()=>{});showToast('📋 Copied!');}
+function copyWallet(){if(walletAddress){navigator.clipboard.writeText(walletAddress).catch(()=>{});showToast('📋 Copied!');}else connectMetaMask();}
+
+// ===== WITHDRAW =====
+function toggleWithdrawMethod(){const m=document.getElementById('withdraw-method').value;document.getElementById('bank-fields').style.display=m==='bank'?'block':'none';document.getElementById('upi-fields').style.display=m==='upi'?'block':'none';}
+function updateWithdrawPreview(){const a=parseFloat(document.getElementById('withdraw-amount').value)||0;if(a>=10){const gross=a*liveRate,gst=gross*.18,tds=gross*.01,final=gross-gst-tds;document.getElementById('fee-breakdown').style.display='block';document.getElementById('fee-usdt').textContent=a.toFixed(2)+' USDT';document.getElementById('fee-rate').textContent='₹'+liveRate.toFixed(2)+' (live)';document.getElementById('fee-gross').textContent='₹'+gross.toFixed(2);document.getElementById('fee-gst').textContent='₹'+gst.toFixed(2);document.getElementById('fee-tds').textContent='₹'+tds.toFixed(2);document.getElementById('fee-final').textContent='₹'+final.toFixed(2);}else document.getElementById('fee-breakdown').style.display='none';}
+function processWithdraw(){const amt=parseFloat(document.getElementById('withdraw-amount').value),method=document.getElementById('withdraw-method').value;if(!amt||amt<10){showToast('⚠️ Min 10 USDT');return;}if(!method){showToast('⚠️ Select method');return;}const gross=amt*liveRate,gst=gross*.18,tds=gross*.01,final=gross-gst-tds,ref='WD-'+Date.now().toString().slice(-8);walletBalance=Math.max(0,walletBalance-amt);allTxns.unshift({type:'withdraw',name:method==='upi'?'UPI Transfer':'Bank Transfer',date:'Just now',usdt:'-'+amt.toFixed(2),status:'pending',hash:ref});document.getElementById('wd-modal-amount').textContent='₹'+final.toFixed(2);document.getElementById('wd-m-usdt').textContent=amt.toFixed(2)+' USDT';document.getElementById('wd-m-rate').textContent='₹'+liveRate.toFixed(2);document.getElementById('wd-m-gst').textContent='₹'+gst.toFixed(2);document.getElementById('wd-m-tds').textContent='₹'+tds.toFixed(2);document.getElementById('wd-m-final').textContent='₹'+final.toFixed(2);document.getElementById('wd-m-ref').textContent=ref;document.getElementById('withdraw-amount').value='';document.getElementById('fee-breakdown').style.display='none';updateDashboard();document.getElementById('wd-modal').classList.add('open');}
+
+// ===== LOGOUT =====
+async function logout(){
+  appLaunched=false;
+  if(_supabase) await _supabase.auth.signOut().catch(()=>{});
+  walletAddress=null;walletBalance=0;provider=null;signer=null;
+  userData={name:'',contact:'',type:''};holdings=[];
+  document.getElementById('bottom-nav').style.display='none';
+  document.getElementById('chatbot-fab').style.display='none';
+  document.getElementById('chatbot-window').classList.remove('open');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  navigate('splash');showToast('👋 Logged out successfully');
+}
+
+// ===== MODAL =====
+// closeModal defined at top of script
+
+// ===== AI CHATBOT =====
+function initChat(){const msgs=document.getElementById('chat-messages');msgs.innerHTML='';addBotMessage('Hey '+(userData.name||'there')+'! 👋 I\'m Vega, your Arthvega AI. I can help with crypto buying/selling, market insights, fees, or anything else. What do you need?');}
+function addBotMessage(text){const msgs=document.getElementById('chat-messages');const d=document.createElement('div');d.className='chat-msg bot';d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+function addUserMessage(text){const msgs=document.getElementById('chat-messages');const d=document.createElement('div');d.className='chat-msg user';d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+function addTyping(){const msgs=document.getElementById('chat-messages');const d=document.createElement('div');d.className='chat-msg typing';d.id='typing-indicator';d.textContent='Vega is typing...';msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+function removeTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove();}
+function sendSuggestion(text){document.getElementById('chat-suggestions').style.display='none';addUserMessage(text);processChatMessage(text);}
+function sendChatMessage(){const input=document.getElementById('chat-input'),text=input.value.trim();if(!text)return;input.value='';document.getElementById('chat-suggestions').style.display='none';addUserMessage(text);processChatMessage(text);}
+
+async function processChatMessage(text){
+  addTyping();
+  const btcPrice=cryptoPrices['bitcoin']?.inr||0, ethPrice=cryptoPrices['ethereum']?.inr||0;
+  const maticPrice=cryptoPrices['matic-network']?.inr||0;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:`You are Vega, AI assistant for Arthvega — a crypto payment & investment app for Indian freelancers. Features: receive USDT on Polygon, buy/sell BTC/ETH/MATIC/SOL/BNB with USDT, withdraw to INR via CoinDCX (GST 18% + TDS 1%). Live prices: BTC=₹${formatPrice(btcPrice)}, ETH=₹${formatPrice(ethPrice)}, MATIC=₹${formatPrice(maticPrice)}, USDT=₹${liveRate.toFixed(2)}. Always warn: blockchain transactions are IRREVERSIBLE. Be helpful, concise, friendly. 2-3 sentences max.`,messages:[...chatHistory,{role:'user',content:text}]})});
+    if(res.ok){const data=await res.json();const reply=data.content[0].text;chatHistory.push({role:'user',content:text},{role:'assistant',content:reply});if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);removeTyping();addBotMessage(reply);return;}
+  }catch(e){}
+  removeTyping();
+  const lower=text.toLowerCase();
+  let reply='I can help with crypto buying, selling, fees, or market questions. What do you need?';
+  if(lower.includes('bitcoin')||lower.includes('btc'))reply=`Bitcoin is currently ₹${formatPrice(btcPrice)} per BTC. To buy, go to Markets tab and tap Bitcoin. Remember: crypto is volatile — only invest what you can afford to lose.`;
+  else if(lower.includes('ethereum')||lower.includes('eth'))reply=`Ethereum is ₹${formatPrice(ethPrice)} per ETH right now. It\'s the second largest crypto by market cap and powers most DeFi. Tap it in the Markets tab to buy.`;
+  else if(lower.includes('buy')||lower.includes('invest'))reply='Go to the Markets tab, tap any coin like BTC, ETH, or MATIC, then enter the USDT amount you want to invest. You\'ll see exactly how much crypto you get at the live rate.';
+  else if(lower.includes('sell'))reply='In the Markets tab, tap a coin you hold, switch to the Sell tab, enter the crypto amount to sell, and confirm. The USDT is credited back to your wallet instantly.';
+  else if(lower.includes('fee')||lower.includes('withdraw'))reply=`Withdrawal: GST 18% + TDS 1% = 19% deducted from INR value. At ₹${liveRate.toFixed(2)}/USDT, withdrawing 100 USDT = ₹${(100*liveRate*0.81).toFixed(0)} net. Processed via CoinDCX API.`;
+  else if(lower.includes('matic')||lower.includes('polygon'))reply=`MATIC (Polygon) is ₹${formatPrice(maticPrice)} now. It\'s the network Arthvega runs on — fast transactions at ~₹0.01 gas fee. Many see it as undervalued given its ecosystem growth.`;
+  else if(lower.includes('safe')||lower.includes('risk'))reply='Your crypto stays in your own MetaMask wallet — Arthvega never holds your funds. But remember: all blockchain transactions are irreversible. If you make a mistake, there\'s no undo button.';
+  else if(lower.includes('wrong')||lower.includes('reverse')||lower.includes('refund'))reply='⚠️ This is the most important Web3 rule: transactions on Polygon CANNOT be reversed by anyone — not Arthvega, not the blockchain, nobody. Always triple-check wallet addresses before sending.';
+  addBotMessage(reply);
+}
+
+// ===== TOAST =====
+// showToast defined at top of script
+
+// ===== CRYPTO DETAIL PAGE =====
+let currentCryptoId = null;
+const coinAbout = {
+  bitcoin:'Bitcoin (BTC) is the world\'s first and largest cryptocurrency, created in 2009 by Satoshi Nakamoto. It operates on a decentralized peer-to-peer network with a fixed supply of 21 million coins.',
+  ethereum:'Ethereum (ETH) is a decentralized platform that enables smart contracts and DApps. Founded by Vitalik Buterin in 2015, it powers most of the DeFi and NFT ecosystem.',
+  'matic-network':'Polygon (MATIC) is an Ethereum Layer-2 scaling solution offering fast, cheap transactions. Arthvega runs on Polygon — gas fees under ₹1 per transaction.',
+  solana:'Solana (SOL) is a high-performance blockchain supporting 65,000 transactions per second. Known for its speed and low fees, it\'s a major competitor to Ethereum.',
+  tether:'Tether (USDT) is the world\'s largest stablecoin, pegged 1:1 to the US Dollar. Arthvega uses USDT on Polygon for international payments.',
+  binancecoin:'BNB is the native token of Binance, the world\'s largest crypto exchange. It\'s used for trading fee discounts and powers the BNB Chain ecosystem.',
+  ripple:'XRP is the native token of the XRP Ledger, designed for fast cross-border payments. It can settle transactions in 3-5 seconds at near-zero cost.',
+  cardano:'Cardano (ADA) is a proof-of-stake blockchain built on peer-reviewed research. Founded by Ethereum co-founder Charles Hoskinson in 2017.',
+  dogecoin:'Dogecoin (DOGE) started as a meme in 2013 but became a top-10 cryptocurrency. Elon Musk\'s support made it one of the most talked-about coins.',
+  'avalanche-2':'Avalanche (AVAX) is a fast, low-cost smart contract platform. It can process 4,500 transactions per second with near-instant finality.',
+  chainlink:'Chainlink (LINK) is a decentralized oracle network that connects smart contracts to real-world data, APIs, and payment systems.',
+  uniswap:'Uniswap (UNI) is the leading decentralized exchange (DEX) on Ethereum. It uses automated market makers (AMMs) instead of traditional order books.',
+};
+
+const coinRanks = {bitcoin:1,ethereum:2,tether:3,binancecoin:4,solana:5,ripple:6,'matic-network':11,cardano:9,dogecoin:8,'avalanche-2':12,chainlink:15,uniswap:20};
+
+function openCryptoDetail(cryptoId){
+  currentCryptoId = cryptoId;
+  const c = CRYPTOS.find(x=>x.id===cryptoId);
+  if(!c) return;
+  const data = cryptoPrices[cryptoId]||{};
+  const priceINR = data.inr||0;
+  const change = data.usd_24h_change||0;
+  const pos = change>=0;
+
+  document.getElementById('cd-name').textContent = c.name;
+  document.getElementById('cd-fullname').textContent = c.name;
+  document.getElementById('cd-symbol-label').textContent = c.symbol+' · Polygon Network';
+  document.getElementById('cd-price').textContent = priceINR?'₹'+formatPrice(priceINR):'Loading...';
+  document.getElementById('cd-change').textContent = (pos?'▲ +':'▼ ')+Math.abs(change).toFixed(2)+'%';
+  document.getElementById('cd-change').style.color = pos?'var(--green)':'var(--red)';
+  const logo = document.getElementById('cd-logo');
+  logo.style.background = c.bg; logo.style.color = c.color; logo.textContent = c.emoji;
+  // Stats
+  const vol = data.usd_24h_vol||0;
+  const volStr = vol>1e9?(vol/1e9).toFixed(1)+'B USD':vol>1e6?(vol/1e6).toFixed(0)+'M USD':'—';
+  const mcap = (data.usd||0)*21e6; // estimate
+  const mcapStr = mcap>1e12?(mcap/1e12).toFixed(2)+'T':mcap>1e9?(mcap/1e9).toFixed(0)+'B':'—';
+  document.getElementById('cd-mcap').textContent = mcapStr;
+  document.getElementById('cd-vol').textContent = volStr;
+  document.getElementById('cd-rank').textContent = '#'+(coinRanks[cryptoId]||'—');
+  document.getElementById('cd-about-name').textContent = c.name;
+  document.getElementById('cd-about-text').textContent = coinAbout[cryptoId]||c.name+' is a leading cryptocurrency available on Arthvega.';
+  document.getElementById('cd-sym-btn').textContent = c.symbol;
+  document.getElementById('cd-sym-btn2').textContent = c.symbol;
+
+  navigate('crypto-detail');
+  loadChart('24h', document.querySelector('.chart-tab'));
+}
+
+function loadChart(period, btn){
+  // Update active tab
+  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+
+  const canvas = document.getElementById('price-chart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.parentElement.offsetWidth - 28;
+  canvas.width = w; canvas.height = 180;
+
+  // Generate realistic price data based on real current price
+  const c = CRYPTOS.find(x=>x.id===currentCryptoId);
+  const data = cryptoPrices[currentCryptoId]||{};
+  const currentPrice = data.usd||1000;
+  const change24h = data.usd_24h_change||0;
+
+  const points = period==='1h'?60:period==='24h'?96:period==='7d'?168:period==='30d'?120:365;
+  const volatility = period==='1h'?0.002:period==='24h'?0.008:period==='7d'?0.03:period==='30d'?0.08:0.25;
+
+  // Generate price history ending at current price
+  let prices = [];
+  let p = currentPrice * (1 - (change24h/100));
+  for(let i=0;i<points;i++){
+    p = p*(1+(Math.random()-0.48)*volatility);
+    prices.push(p);
+  }
+  prices.push(currentPrice);
+
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  const range = max-min||1;
+  const pad = 20;
+  const chartH = canvas.height-pad*2;
+  const chartW = canvas.width-pad*2;
+  const pos = currentPrice >= prices[0];
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,pad,0,canvas.height-pad);
+  grad.addColorStop(0, pos?'rgba(22,163,74,0.25)':'rgba(220,38,38,0.25)');
+  grad.addColorStop(1, 'rgba(255,255,255,0)');
+
+  // Draw fill
+  ctx.beginPath();
+  prices.forEach((price,i)=>{
+    const x = pad+(i/(prices.length-1))*chartW;
+    const y = pad+chartH-((price-min)/range)*chartH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad+chartW, canvas.height-pad);
+  ctx.lineTo(pad, canvas.height-pad);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw line
+  ctx.beginPath();
+  ctx.strokeStyle = pos?'#16a34a':'#dc2626';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  prices.forEach((price,i)=>{
+    const x = pad+(i/(prices.length-1))*chartW;
+    const y = pad+chartH-((price-min)/range)*chartH;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Draw current price dot
+  const lastX = pad+chartW;
+  const lastY = pad+chartH-((currentPrice-min)/range)*chartH;
+  ctx.beginPath();
+  ctx.arc(lastX,lastY,5,0,Math.PI*2);
+  ctx.fillStyle = pos?'#16a34a':'#dc2626';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(lastX,lastY,8,0,Math.PI*2);
+  ctx.strokeStyle = pos?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Price labels
+  ctx.fillStyle = '#9090b0';
+  ctx.font = '10px Poppins,sans-serif';
+  ctx.fillText('$'+formatPrice(max), pad+4, pad+12);
+  ctx.fillText('$'+formatPrice(min), pad+4, canvas.height-pad-4);
+}
+
+// ===== TRANSACTION DETAIL PAGE =====
+let currentTxn = null;
+
+function openTxnDetail(txn){
+  currentTxn = txn;
+  const icons = {recv:{bg:'var(--green-bg)',icon:'↓'},send:{bg:'var(--red-bg)',icon:'↑'},withdraw:{bg:'var(--amber-bg)',icon:'🏦'},invest:{bg:'#ede9fe',icon:'📈'}};
+  const ic = icons[txn.type]||icons.send;
+  const pos = txn.usdt.startsWith('+');
+  const inr = (pos?'+':'-')+'₹'+(Math.abs(parseFloat(txn.usdt))*liveRate).toFixed(2);
+
+  // Icon
+  const iconEl = document.getElementById('td-icon');
+  iconEl.style.background = ic.bg; iconEl.textContent = ic.icon;
+
+  // Amount
+  document.getElementById('td-amount').textContent = txn.usdt+' USDT';
+  document.getElementById('td-amount').style.color = pos?'var(--green)':'var(--red)';
+  document.getElementById('td-inr').textContent = inr+' · Live rate ₹'+liveRate.toFixed(2);
+
+  // Status
+  const statusColors = {success:{bg:'var(--green-bg)',color:'var(--green)',text:'Transaction Confirmed',sub:'Completed on Polygon blockchain'},pending:{bg:'var(--amber-bg)',color:'var(--amber)',text:'Transaction Pending',sub:'Waiting for blockchain confirmation'},failed:{bg:'var(--red-bg)',color:'var(--red)',text:'Transaction Failed',sub:'Transaction was rejected'}};
+  const st = statusColors[txn.status]||statusColors.success;
+  const bar = document.getElementById('td-status-bar');
+  bar.style.background = st.bg;
+  bar.querySelector('div').style.background = st.color;
+  document.getElementById('td-status-text').textContent = st.text;
+  document.getElementById('td-status-text').style.color = st.color;
+  document.getElementById('td-status-sub').textContent = st.sub;
+  document.getElementById('td-status-sub').style.color = st.color;
+
+  // Progress steps
+  const steps = txn.status==='success'?[
+    {label:'Transaction Submitted',time:'Instant',done:true},
+    {label:'Network Validation',time:'~2 seconds',done:true},
+    {label:'Block Confirmation',time:'~5 seconds',done:true},
+    {label:'Completed',time:txn.date,done:true},
+  ]:txn.status==='pending'?[
+    {label:'Transaction Submitted',time:'Instant',done:true},
+    {label:'Network Validation',time:'In progress...',done:false},
+    {label:'Block Confirmation',time:'Waiting...',done:false},
+    {label:'Completed',time:'Pending',done:false},
+  ]:[
+    {label:'Transaction Submitted',time:'Attempted',done:true},
+    {label:'Network Validation',time:'Failed',done:false},
+    {label:'Block Confirmation',time:'—',done:false},
+    {label:'Completed',time:'—',done:false},
+  ];
+
+  document.getElementById('td-steps').innerHTML = steps.map((s,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0;${i<steps.length-1?'border-bottom:1px solid var(--border);':''}">
+      <div style="width:24px;height:24px;border-radius:50%;background:${s.done?'var(--green)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:${s.done?'#fff':'var(--ink3)'};flex-shrink:0;font-weight:700;">${s.done?'✓':i+1}</div>
+      <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:${s.done?'var(--ink)':'var(--ink3)'};">${s.label}</div><div style="font-size:10px;color:var(--ink3);margin-top:1px;">${s.time}</div></div>
+    </div>
+  `).join('');
+
+  // Details
+  const typeLabel = {recv:'Received USDT',send:'Sent USDT',withdraw:'INR Withdrawal',invest:'Crypto Investment'};
+  document.getElementById('td-type').textContent = typeLabel[txn.type]||txn.type;
+  document.getElementById('td-date').textContent = txn.date;
+  document.getElementById('td-hash').textContent = txn.hash||'—';
+  document.getElementById('td-block').textContent = txn.hash&&txn.hash.startsWith('0x')?Math.floor(Math.random()*1000000+40000000):'—';
+
+  // To address
+  const toRow = document.getElementById('td-to-row');
+  if(txn.type==='send'&&txn.hash){
+    toRow.style.display='flex';
+    document.getElementById('td-to').textContent = txn.hash.startsWith('0x')?'0x7f3a...9c2b':'—';
+  } else { toRow.style.display='none'; }
+
+  // Explorer link
+  const explorerLink = document.getElementById('td-explorer');
+  if(txn.hash&&txn.hash.startsWith('0x')){
+    explorerLink.href = 'https://mumbai.polygonscan.com/tx/'+txn.hash;
+  } else {
+    explorerLink.href = '#'; explorerLink.onclick = ()=>{showToast('No blockchain hash for this transaction');return false;};
+  }
+
+  navigate('txn-detail');
+}
+
+function copyTxnHash(){
+  const hash = currentTxn?.hash||'';
+  if(!hash){showToast('No hash available');return;}
+  navigator.clipboard.writeText(hash).catch(()=>{});
+  showToast('📋 Hash copied!');
+}
+
+// ===== INIT =====
+renderTxns(allTxns,'history-txns');
+fetchAllRates();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js" onload="initSupabase()" onerror="console.error('Supabase CDN failed')"></script>
+</body>
+</html>
