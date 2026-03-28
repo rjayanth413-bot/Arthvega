@@ -9,7 +9,7 @@
 <meta property="og:title" content="Arthvega — Fast Crypto Payments"/>
 <meta property="og:description" content="Receive USDT from clients worldwide. Withdraw to INR bank. Zero fees on Polygon."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://incredible-dasik-807529.netlify.app"/>
+<meta property="og:url" content="https://arthvega.netlify.app"/>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236C3DE8'/><text x='50' y='68' font-family='Arial Black,sans-serif' font-size='42' font-weight='900' text-anchor='middle' fill='white'>AV</text></svg>"/>
 <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236C3DE8'/><text x='50' y='68' font-family='Arial Black,sans-serif' font-size='42' font-weight='900' text-anchor='middle' fill='white'>AV</text></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -990,7 +990,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg2);color:var(--ink);fon
 // ===== SUPABASE CONFIG =====
 const SUPABASE_URL = 'https://lgdcrrhxsqftaciknmkq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxnZGNycmh4c3FmdGFjaWtubWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3Njc0NzIsImV4cCI6MjA4OTM0MzQ3Mn0.X39qZhA3M4zIL4Up6vgUMbQCyn7FhA-2fyHCJ5EKcXM';
-const SITE_URL = 'https://incredible-dasik-807529.netlify.app';
+const SITE_URL = 'https://arthvega.netlify.app';
 
 // Init Supabase - retry until library loads
 let _supabase = null;
@@ -1366,12 +1366,38 @@ function updatePortfolio(){
 
 // ===== METAMASK =====
 async function connectMetaMask(){
-  if(typeof window.ethereum==='undefined'){showToast('🦊 Install MetaMask first');window.open('https://metamask.io/download/','_blank');return;}
+  const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  if(typeof window.ethereum==='undefined'){
+    if(isMobile){
+      showToast('🦊 Opening MetaMask app...');
+      window.open('https://metamask.app.link/dapp/arthvega.shop','_blank');
+      return;
+    }
+    showToast('🦊 Install MetaMask extension first');
+    window.open('https://metamask.io/download/','_blank');
+    return;
+  }
+
   try{
     showToast('🦊 Connecting...');
     await window.ethereum.request({method:'eth_requestAccounts'});
-    try{await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x13881'}]});}
-    catch(sw){if(sw.code===4902){await window.ethereum.request({method:'wallet_addEthereumChain',params:[{chainId:'0x13881',chainName:'Polygon Mumbai Testnet',nativeCurrency:{name:'MATIC',symbol:'MATIC',decimals:18},rpcUrls:['https://rpc-mumbai.maticvigil.com/'],blockExplorerUrls:['https://mumbai.polygonscan.com/']}]});}}
+
+    // Polygon Amoy Testnet (Mumbai deprecated)
+    try{
+      await window.ethereum.request({method:'wallet_switchEthereumChain',params:[{chainId:'0x13882'}]});
+    }catch(sw){
+      if(sw.code===4902){
+        await window.ethereum.request({method:'wallet_addEthereumChain',params:[{
+          chainId:'0x13882',
+          chainName:'Polygon Amoy Testnet',
+          nativeCurrency:{name:'MATIC',symbol:'MATIC',decimals:18},
+          rpcUrls:['https://rpc-amoy.polygon.technology/'],
+          blockExplorerUrls:['https://amoy.polygonscan.com/']
+        }]});
+      }
+    }
+
     provider=new ethers.BrowserProvider(window.ethereum);
     signer=await provider.getSigner();
     walletAddress=await signer.getAddress();
@@ -1379,8 +1405,12 @@ async function connectMetaMask(){
     walletBalance=parseFloat(ethers.formatEther(maticBal));
     try{const u=new ethers.Contract(USDT_MUMBAI,USDT_ABI,provider);const rb=await u.balanceOf(walletAddress);walletBalance=parseFloat(ethers.formatUnits(rb,6));}catch(e){}
     onWalletConnected();
-  }catch(e){if(e.code===4001)showToast('❌ Rejected');else showToast('⚠️ '+(e.message||'Failed').slice(0,50));}
+  }catch(e){
+    if(e.code===4001)showToast('❌ Connection rejected');
+    else showToast('⚠️ '+(e.message||'Failed').slice(0,60));
+  }
 }
+
 
 function onWalletConnected(){
   const short=walletAddress.slice(0,8)+'...'+walletAddress.slice(-6);
